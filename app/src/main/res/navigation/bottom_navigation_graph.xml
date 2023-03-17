@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_navigation_graph"
+    app:startDestination="@id/tasksListBottomFragment">
+
+    <fragment
+        android:id="@+id/tasksListBottomFragment"
+        android:name="com.volozhinsky.lifetasktracker.ui.tasks_list.TasksListBottomFragment"
+        android:label="fragment_tasks_list_bottom"
+        tools:layout="@layout/fragment_tasks_list_bottom" >
+        <action
+            android:id="@+id/action_tasksListBottomFragment_to_taskDetailBottomInfoFragment"
+            app:destination="@id/taskDetailBottomInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/taskDetailBottomInfoFragment"
+        android:name="com.volozhinsky.lifetasktracker.ui.task_details.TaskDetailBottomInfoFragment"
+        android:label="TaskDetailBottomInfoFragment" >
+        <action
+            android:id="@+id/action_taskDetailBottomInfoFragment_to_taskDetailBottomPicFragment"
+            app:destination="@id/taskDetailBottomPicFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/taskDetailBottomPicFragment"
+        android:name="com.volozhinsky.lifetasktracker.ui.task_details.TaskDetailBottomPicFragment"
+        android:label="TaskDetailBottomPicFragment" />
+</navigation>

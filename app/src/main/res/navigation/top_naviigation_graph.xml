@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/top_naviigation_graph"
+    app:startDestination="@id/tasksListTopFragment">
+
+    <fragment
+        android:id="@+id/tasksListTopFragment"
+        android:name="com.volozhinsky.lifetasktracker.ui.tasks_list.TasksListTopFragment"
+        android:label="fragment_tasks_list_top"
+        tools:layout="@layout/fragment_tasks_list_top" >
+        <action
+            android:id="@+id/action_tasksListTopFragment_to_taskDetailTopFragment"
+            app:destination="@id/taskDetailTopFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/taskDetailTopFragment"
+        android:name="com.volozhinsky.lifetasktracker.ui.task_details.TaskDetailTopFragment"
+        android:label="TaskDetailTopFragment" />
+</navigation>
