@@ -1,6 +1,7 @@
 package com.volozhinsky.lifetasktracker.domain.models
 
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDateTime
 import java.util.Date
 
 class Task(
@@ -11,5 +12,5 @@ class Task(
     val position: Int,
     val notes: String,
     val status: String,
-    val due: Date,
+    val due: LocalDateTime,
 )

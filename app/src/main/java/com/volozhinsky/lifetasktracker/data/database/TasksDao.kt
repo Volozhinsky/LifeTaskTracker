@@ -22,4 +22,7 @@ interface TasksDao {
 
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     fun insertAllIntoTaskLists(vararg taskListEntity: TaskListEntity)
+
+    @Insert (onConflict = OnConflictStrategy.REPLACE)
+    fun insertAllIntoTask(vararg taskEntity: TaskEntity)
 }

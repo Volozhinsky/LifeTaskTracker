@@ -3,6 +3,7 @@ package com.volozhinsky.lifetasktracker.data.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDateTime
 import java.util.*
 
 @Entity(tableName = "tasks", primaryKeys = ["listId","id","account"])
@@ -17,5 +18,5 @@ data class TaskEntity(
     @ColumnInfo("position")val position: Int,
     @ColumnInfo("notes")val notes: String,
     @ColumnInfo("status")val status: String,
-    @ColumnInfo("due")val due: Date
+    @ColumnInfo("due")val due: LocalDateTime
 )
