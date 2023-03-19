@@ -20,6 +20,7 @@ import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Module
@@ -76,5 +77,11 @@ object DataModule {
         return db.getTasksDao()
     }
 
+    @Provides
+    fun provideDateTimeFormatter(): DateTimeFormatter {
+        return DateTimeFormatter.ofPattern(DATE_FORMAT,Locale.ENGLISH)
+    }
+
     private const val PREFS_KEY = "prefs_key"
+    private const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
 }

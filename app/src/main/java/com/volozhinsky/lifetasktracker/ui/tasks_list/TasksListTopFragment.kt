@@ -4,6 +4,8 @@ import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +16,7 @@ import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.volozhinsky.lifetasktracker.R
 import com.volozhinsky.lifetasktracker.databinding.FragmentTasksListTopBinding
 import com.volozhinsky.lifetasktracker.ui.CallBacks
@@ -21,13 +24,18 @@ import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class TasksListTopFragment : Fragment() {
+class TasksListTopFragment() : Fragment(), Parcelable {
 
     private var _callBacks: CallBacks? = null
     private val callBacks get() = _callBacks
     private var _binding: FragmentTasksListTopBinding? = null
     private val binding get() = _binding!!
     private val tasksListTopViewModel by viewModels<TasksListTopViewModel>()
+    private var recyclerAdapter: TaskListAdapter? = null
+
+    constructor(parcel: Parcel) : this() {
+
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,29 +68,20 @@ class TasksListTopFragment : Fragment() {
     }
 
     private fun initCredential() {
-        val louncher = registerForActivityResult(tasksListTopViewModel.chooseAccountContract){ activityResult ->
-            if (activityResult.resultCode == Activity.RESULT_OK) {
-                val accountName = activityResult.data?.extras?.getString(AccountManager.KEY_ACCOUNT_NAME)
-                accountName?.let {
-                    tasksListTopViewModel.saveUserAccountName(it)
-                    tasksListTopViewModel.updateData()
-                }
-
-            }
-        }
-        if (tasksListTopViewModel.getUserAccountName().isEmpty()){
-            louncher.launch("")
-        }
-        val userRecoverableAuthlauncher = registerForActivityResult(tasksListTopViewModel.userRecoverableAuthContract){}
-        tasksListTopViewModel.loadExIntent.observe(viewLifecycleOwner){
-            userRecoverableAuthlauncher.launch(it)
-        }
-    }
+     }
 
     private fun initViews() {
-        binding.button1.setOnClickListener {
+
+
+        recyclerAdapter = TaskListAdapter{
             callBacks?.onTaskSelected()
-         }
+        }
+        binding.taskRecicler.apply {
+            adapter = recyclerAdapter
+            layoutManager = LinearLayoutManager(this@TasksListTopFragment.context,
+            LinearLayoutManager.VERTICAL,
+            false)
+        }
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
@@ -92,6 +91,7 @@ class TasksListTopFragment : Fragment() {
         binding.taskListsSpinner.onItemSelectedListener = object : OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 tasksListTopViewModel.changeSelectedTaskList(p2)
+                tasksListTopViewModel.updateData()
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {}
@@ -100,10 +100,49 @@ class TasksListTopFragment : Fragment() {
             adapter.clear()
             adapter.addAll(taskLists.map { it.title })
             adapter.notifyDataSetChanged()
+            tasksListTopViewModel.updateSelectedList()
         }
         tasksListTopViewModel.selectedTaskListIndex.observe(viewLifecycleOwner){
             binding.taskListsSpinner.setSelection(it)
         }
-        tasksListTopViewModel.updateData()
+        tasksListTopViewModel.tasks.observe(viewLifecycleOwner){tasks ->
+            recyclerAdapter?.setAdapterData(tasks)
+        }
+        val louncher = registerForActivityResult(tasksListTopViewModel.chooseAccountContract){ activityResult ->
+            if (activityResult.resultCode == Activity.RESULT_OK) {
+                val accountName = activityResult.data?.extras?.getString(AccountManager.KEY_ACCOUNT_NAME)
+                accountName?.let {
+                    tasksListTopViewModel.saveUserAccountName(it)
+                    tasksListTopViewModel.updateData()
+                }
+            }
+        }
+        if (tasksListTopViewModel.getUserAccountName().isEmpty()){
+            louncher.launch("")
+        } else{
+            tasksListTopViewModel.updateData()
+        }
+        val userRecoverableAuthlauncher = registerForActivityResult(tasksListTopViewModel.userRecoverableAuthContract){}
+        tasksListTopViewModel.loadExIntent.observe(viewLifecycleOwner){
+            userRecoverableAuthlauncher.launch(it)
+        }
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<TasksListTopFragment> {
+        override fun createFromParcel(parcel: Parcel): TasksListTopFragment {
+            return TasksListTopFragment(parcel)
+        }
+
+        override fun newArray(size: Int): Array<TasksListTopFragment?> {
+            return arrayOfNulls(size)
+        }
     }
 }

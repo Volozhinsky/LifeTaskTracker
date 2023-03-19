@@ -20,6 +20,12 @@ interface TasksDao {
             "AND id= :id ")
     fun getSelectedTaskList(account: String, id: String): List<TaskListEntity>
 
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE account = :account "+
+            "AND listId= :taskListId ")
+    fun getTasks(account: String, taskListId: String): List<TaskEntity>
+
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     fun insertAllIntoTaskLists(vararg taskListEntity: TaskListEntity)
 

@@ -11,6 +11,6 @@ class Task(
     val parent: String,
     val position: Int,
     val notes: String,
-    val status: String,
+    val status: Boolean,
     val due: LocalDateTime,
 )

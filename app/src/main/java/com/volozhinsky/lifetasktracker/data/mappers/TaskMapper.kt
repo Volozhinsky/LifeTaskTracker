@@ -4,9 +4,10 @@ import com.volozhinsky.lifetasktracker.data.database.TaskEntity
 import com.volozhinsky.lifetasktracker.data.models.TaskResponse
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
-class TaskMapper @Inject constructor() {
+class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFormatter) {
     fun mapEntityToDomain(response: TaskEntity): Task = with(response) {
         Task(
             id = id,
@@ -14,7 +15,7 @@ class TaskMapper @Inject constructor() {
             selfLink = selfLink,
             parent =parent,
             notes = notes,
-            status = status,
+            status = status == COMPLETE_STRING,
             due = due,
             position = position
         )
@@ -30,8 +31,15 @@ class TaskMapper @Inject constructor() {
             parent =parent ?: "",
             notes = notes ?: "",
             status = status ?: "",
-            due = LocalDateTime.parse(due) ?: LocalDateTime.MIN,
+            due =due?.let {
+                LocalDateTime.parse(it,dateTimeFormatter)
+            }   ?: LocalDateTime.MIN,
             position = position?.toInt() ?: 0
         )
+    }
+
+    companion object{
+
+        const val COMPLETE_STRING = "completed"
     }
 }

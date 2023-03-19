@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class GetTasksResponse(
     @SerializedName("items") val items: List<TaskResponse>,
-    @SerializedName("nextPageToken") val nextPageToken: String
+    @SerializedName("nextPageToken") val nextPageToken: String? = null
 )
