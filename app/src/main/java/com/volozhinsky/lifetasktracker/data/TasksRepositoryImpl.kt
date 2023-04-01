@@ -70,12 +70,12 @@ class TasksRepositoryImpl @Inject constructor(
         val fullTaskList = mutableListOf<TaskResponse>()
         var nextPageResponse: GetTasksResponse?
         return withContext(Dispatchers.IO){
-            val response = googleTasksApiService.getTasks(listId).execute().body()
+            val response = googleTasksApiService.getTasks(listId)
             response?.let {getTaskResponse ->
                 fullTaskList.addAll(getTaskResponse.items)
                 var nextPageToken: String = getTaskResponse.nextPageToken ?: ""
                 while(nextPageToken.isNotEmpty()){
-                    nextPageResponse = googleTasksApiService.getTasksNextPage(listId,nextPageToken).execute().body()
+                    nextPageResponse = googleTasksApiService.getTasksNextPage(listId,nextPageToken)
                     nextPageToken = nextPageResponse?.nextPageToken.orEmpty()
                     nextPageResponse?.let {
                         fullTaskList.addAll(it.items)
@@ -88,8 +88,17 @@ class TasksRepositoryImpl @Inject constructor(
 
     private suspend  fun getTaskListsFromApi(): List<TaskListResponse>{
         return withContext(Dispatchers.IO){
-            val response = googleTasksApiService.getList().execute().body()
+            val response = googleTasksApiService.getList()
                 response?.items ?: throw Exception()
+        }
+    }
+
+    override suspend fun insertTask(task: Task) {
+        val account = userDataSource.getAccountName()
+        val taskListId = userDataSource.getSelectedTaskListID()
+        withContext(Dispatchers.IO){
+            val taskResponse = googleTasksApiService.insertTask(taskListId, taskMapper.mapDomainToResponse(task))
+            tasksDao.insertAllIntoTask(taskMapper.mapResponseToEntity(taskResponse,account,taskListId))
         }
     }
 }

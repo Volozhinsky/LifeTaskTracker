@@ -86,4 +86,8 @@ class TasksListTopViewModel @Inject constructor(
     fun changeSelectedTaskList(listPos: Int) {
         tasksList.value?.get(listPos)?.let { prefs.setSelectedTaskListID(it.id) }
     }
+
+    fun addTask() {
+        viewModelScope.launch {getTasksUseCase.addTask()}
+    }
 }

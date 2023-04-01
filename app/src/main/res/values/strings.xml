@@ -3,4 +3,5 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Top Top</string>
     <string name="hello_blank_fragment_bottom">bottom bottom</string>
+    <string name="add_task_button_text">Add task</string>
 </resources>

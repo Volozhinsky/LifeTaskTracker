@@ -65,15 +65,6 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
     }
 
     private fun initCredential() {
-     }
-
-    private fun initViews() {
-        initRecycler()
-        initSpinner()
-
-        tasksListTopViewModel.tasks.observe(viewLifecycleOwner){tasks ->
-            recyclerAdapter?.setAdapterData(tasks)
-        }
         val louncher = registerForActivityResult(tasksListTopViewModel.chooseAccountContract){ activityResult ->
             if (activityResult.resultCode == Activity.RESULT_OK) {
                 val accountName = activityResult.data?.extras?.getString(AccountManager.KEY_ACCOUNT_NAME)
@@ -92,7 +83,20 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
         tasksListTopViewModel.loadExIntent.observe(viewLifecycleOwner){
             userRecoverableAuthlauncher.launch(it)
         }
+
     }
+
+    private fun initViews() {
+        initRecycler()
+        initSpinner()
+        binding.fabAddTask.setOnClickListener {
+            tasksListTopViewModel.addTask()
+        }
+
+        tasksListTopViewModel.tasks.observe(viewLifecycleOwner){tasks ->
+            recyclerAdapter?.setAdapterData(tasks)
+        }
+     }
 
     private fun initSpinner() {
         val adapter = ArrayAdapter(

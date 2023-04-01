@@ -39,8 +39,27 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
         )
     }
 
+    fun mapDomainToResponse(response: Task): TaskResponse = with(response) {
+        TaskResponse(
+
+            id = id,
+            title = title,
+            selfLink = selfLink,
+            parent =parent,
+            notes = notes,
+            status = if(status) COMPLETE_STRING else NEEDS_ACTION,
+            due =due.format(dateTimeFormatter),
+            position = position.toString()
+        )
+    }
+
+
+
+
+
     companion object{
 
         const val COMPLETE_STRING = "completed"
+        const val NEEDS_ACTION =  "needsAction"
     }
 }

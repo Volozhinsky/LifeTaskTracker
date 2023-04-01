@@ -1,8 +1,8 @@
 package com.volozhinsky.lifetasktracker.data.models
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 data class GetTasksResponse(
-    @SerializedName("items") val items: List<TaskResponse>,
-    @SerializedName("nextPageToken") val nextPageToken: String? = null
+    @Json(name ="items") val items: List<TaskResponse>,
+    @Json(name ="nextPageToken") val nextPageToken: String? = null
 )

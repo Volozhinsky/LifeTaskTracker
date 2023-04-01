@@ -10,6 +10,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.services.tasks.TasksScopes
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.volozhinsky.lifetasktracker.data.database.AppDataBase
 import com.volozhinsky.lifetasktracker.data.database.TasksDao
 import com.volozhinsky.lifetasktracker.data.network.GoogleRequestInterceptor
@@ -19,9 +21,10 @@ import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.jvm.internal.Intrinsics.Kotlin
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -50,10 +53,13 @@ object DataModule {
 
     @Provides
     fun provideRetrofitTaskList(client: OkHttpClient): Retrofit{
+        val moshi = Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
         return Retrofit.Builder()
             .baseUrl("https://tasks.googleapis.com/tasks/v1/")
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
     }
 
