@@ -6,7 +6,7 @@ import java.util.Date
 import java.util.UUID
 
 class Task(
-    val id: UUID,
+    val id: String,
     val title: String,
     val selfLink: String,
     val parent: String,

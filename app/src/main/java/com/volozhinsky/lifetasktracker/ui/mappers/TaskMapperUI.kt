@@ -7,7 +7,7 @@ import javax.inject.Inject
 class TaskMapperUI @Inject constructor() {
     fun mapDomainToUi(response: Task): TaskUI = with(response) {
         TaskUI(
-            id = id.toString(),
+            id = id,
             title = title,
             selfLink = selfLink,
             parent =parent,

@@ -26,7 +26,7 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
         TaskEntity(
             account = account,
             listId = listId,
-            id = UUID.fromString(id ?: ""),
+            id = id ?: "",
             title = title ?: "",
             selfLink = selfLink ?: "",
             parent =parent ?: "",
