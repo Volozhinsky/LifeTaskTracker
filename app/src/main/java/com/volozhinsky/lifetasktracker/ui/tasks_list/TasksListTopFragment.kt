@@ -21,10 +21,11 @@ import com.volozhinsky.lifetasktracker.R
 import com.volozhinsky.lifetasktracker.databinding.FragmentTasksListTopBinding
 import com.volozhinsky.lifetasktracker.ui.CallBacks
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
+import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class TasksListTopFragment() : Fragment(), Parcelable {
+class TasksListTopFragment() : Fragment(),TaskListVHListner {
 
     private var _callBacks: CallBacks? = null
     private val callBacks get() = _callBacks
@@ -32,10 +33,6 @@ class TasksListTopFragment() : Fragment(), Parcelable {
     private val binding get() = _binding!!
     private val tasksListTopViewModel by viewModels<TasksListTopViewModel>()
     private var recyclerAdapter: TaskListAdapter? = null
-
-    constructor(parcel: Parcel) : this() {
-
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -71,40 +68,9 @@ class TasksListTopFragment() : Fragment(), Parcelable {
      }
 
     private fun initViews() {
+        initRecycler()
+        initSpinner()
 
-
-        recyclerAdapter = TaskListAdapter{
-            callBacks?.onTaskSelected()
-        }
-        binding.taskRecicler.apply {
-            adapter = recyclerAdapter
-            layoutManager = LinearLayoutManager(this@TasksListTopFragment.context,
-            LinearLayoutManager.VERTICAL,
-            false)
-        }
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_spinner_item,
-            mutableListOf<String>()
-        )
-        binding.taskListsSpinner.adapter = adapter
-        binding.taskListsSpinner.onItemSelectedListener = object : OnItemSelectedListener{
-            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                tasksListTopViewModel.changeSelectedTaskList(p2)
-                tasksListTopViewModel.updateData()
-            }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {}
-        }
-        tasksListTopViewModel.tasksList.observe(viewLifecycleOwner){taskLists ->
-            adapter.clear()
-            adapter.addAll(taskLists.map { it.title })
-            adapter.notifyDataSetChanged()
-            tasksListTopViewModel.updateSelectedList()
-        }
-        tasksListTopViewModel.selectedTaskListIndex.observe(viewLifecycleOwner){
-            binding.taskListsSpinner.setSelection(it)
-        }
         tasksListTopViewModel.tasks.observe(viewLifecycleOwner){tasks ->
             recyclerAdapter?.setAdapterData(tasks)
         }
@@ -128,21 +94,47 @@ class TasksListTopFragment() : Fragment(), Parcelable {
         }
     }
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
+    private fun initSpinner() {
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            mutableListOf<String>()
+        )
+        binding.taskListsSpinner.adapter = adapter
+        binding.taskListsSpinner.onItemSelectedListener = object : OnItemSelectedListener{
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                tasksListTopViewModel.changeSelectedTaskList(p2)
+                tasksListTopViewModel.updateData()
+            }
 
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
+        tasksListTopViewModel.tasksList.observe(viewLifecycleOwner){taskLists ->
+            adapter.clear()
+            adapter.addAll(taskLists.map { it.title })
+            adapter.notifyDataSetChanged()
+            tasksListTopViewModel.updateSelectedList()
+        }
+        tasksListTopViewModel.selectedTaskListIndex.observe(viewLifecycleOwner){
+            binding.taskListsSpinner.setSelection(it)
+        }
     }
 
-    override fun describeContents(): Int {
-        return 0
+    private fun initRecycler() {
+        recyclerAdapter = TaskListAdapter(this)
+        binding.taskRecicler.apply {
+            adapter = recyclerAdapter
+            layoutManager = LinearLayoutManager(this@TasksListTopFragment.context,
+                LinearLayoutManager.VERTICAL,
+                false)
+        }
     }
 
-    companion object CREATOR : Parcelable.Creator<TasksListTopFragment> {
-        override fun createFromParcel(parcel: Parcel): TasksListTopFragment {
-            return TasksListTopFragment(parcel)
-        }
+    override fun onItemClick(taskId: String) {
+        callBacks?.onTaskSelected()
+    }
 
-        override fun newArray(size: Int): Array<TasksListTopFragment?> {
-            return arrayOfNulls(size)
-        }
+    override fun onStartTiming(task: TaskUI) {
+        TODO("Not yet implemented")
     }
 }

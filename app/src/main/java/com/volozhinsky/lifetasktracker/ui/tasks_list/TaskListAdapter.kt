@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.volozhinsky.lifetasktracker.databinding.RvItemTaskBinding
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 
-class TaskListAdapter(private val onClicFunc: (String) -> Unit) :
+class TaskListAdapter(private val listners: TaskListVHListner) :
     RecyclerView.Adapter<TaskListViewHolder>() {
 
     private val taskList: MutableList<TaskUI> = mutableListOf()
@@ -14,7 +14,7 @@ class TaskListAdapter(private val onClicFunc: (String) -> Unit) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskListViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val taskBinding = RvItemTaskBinding.inflate(layoutInflater,parent,false)
-        return TaskListViewHolder(taskBinding,onClicFunc)
+        return TaskListViewHolder(taskBinding,listners)
     }
 
     override fun onBindViewHolder(holder: TaskListViewHolder, position: Int) {

@@ -11,7 +11,7 @@ data class TaskEntity(
      @ColumnInfo("listId") val listId: String,
      @ColumnInfo("account") val account: String,
 
-    @ColumnInfo("id") val id: String,
+    @ColumnInfo("id") val id: UUID = UUID.randomUUID(),
     @ColumnInfo("title")val title: String,
     @ColumnInfo("selfLink")val selfLink: String,
     @ColumnInfo("parent")val parent: String,

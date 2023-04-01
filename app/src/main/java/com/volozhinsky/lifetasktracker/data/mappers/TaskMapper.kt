@@ -5,6 +5,7 @@ import com.volozhinsky.lifetasktracker.data.models.TaskResponse
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 import javax.inject.Inject
 
 class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFormatter) {
@@ -25,7 +26,7 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
         TaskEntity(
             account = account,
             listId = listId,
-            id = id ?: "",
+            id = UUID.fromString(id ?: ""),
             title = title ?: "",
             selfLink = selfLink ?: "",
             parent =parent ?: "",
