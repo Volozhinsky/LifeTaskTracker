@@ -4,7 +4,7 @@ import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 
 interface TaskListVHListner {
 
-    fun onItemClick(taskId: String)
+    fun onItemClick(task: TaskUI)
 
     fun onStartTiming(task: TaskUI)
 }

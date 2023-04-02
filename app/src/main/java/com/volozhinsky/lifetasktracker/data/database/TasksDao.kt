@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.google.api.services.tasks.model.TaskList
 
 @Dao
 interface TasksDao {
@@ -25,6 +24,14 @@ interface TasksDao {
             "WHERE account = :account "+
             "AND listId= :taskListId ")
     fun getTasks(account: String, taskListId: String): List<TaskEntity>
+
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE account = :account " +
+            "AND listId= :taskListId " +
+            "AND id IN (:ids) ")
+    fun getTasksByID(account: String, taskListId: String, ids: List<String>): List<TaskEntity>
+
 
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     fun insertAllIntoTaskLists(vararg taskListEntity: TaskListEntity)

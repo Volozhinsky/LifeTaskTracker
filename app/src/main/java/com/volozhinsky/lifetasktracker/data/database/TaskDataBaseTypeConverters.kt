@@ -9,8 +9,8 @@ import java.util.*
 
 class TaskDataBaseTypeConverters {
     @TypeConverter
-    fun fromDate(date: LocalDateTime): Long? {
-        return date?.getLong(ChronoField.CLOCK_HOUR_OF_DAY)
+    fun fromDate(date: LocalDateTime): Long {
+        return date.getLong(ChronoField.CLOCK_HOUR_OF_DAY)
     }
 
     @TypeConverter

@@ -5,13 +5,14 @@ import com.volozhinsky.lifetasktracker.data.models.TaskResponse
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
 
 class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFormatter) {
     fun mapEntityToDomain(response: TaskEntity): Task = with(response) {
         Task(
             id = id,
+            internalId = internalId,
             title = title,
             selfLink = selfLink,
             parent =parent,
@@ -22,11 +23,12 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
         )
     }
 
-    fun mapResponseToEntity(response: TaskResponse, account: String,listId: String): TaskEntity = with(response) {
+    fun mapResponseToEntity(response: TaskResponse, account: String,listId: String,internalId: UUID): TaskEntity = with(response) {
         TaskEntity(
             account = account,
             listId = listId,
             id = id ?: "",
+            internalId = internalId,
             title = title ?: "",
             selfLink = selfLink ?: "",
             parent =parent ?: "",
@@ -39,23 +41,19 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
         )
     }
 
-    fun mapDomainToResponse(response: Task): TaskResponse = with(response) {
+    fun mapDomainToResponseCreate(response: Task): TaskResponse = with(response) {
         TaskResponse(
 
-            id = id,
-            title = title,
-            selfLink = selfLink,
-            parent =parent,
-            notes = notes,
-            status = if(status) COMPLETE_STRING else NEEDS_ACTION,
-            due =due.format(dateTimeFormatter),
-            position = position.toString()
+            id = null,
+            title = null,
+            selfLink = null,
+            parent =null,
+            notes = null,
+            status = null, //if(status) COMPLETE_STRING else NEEDS_ACTION,
+            due =null, //due.format(dateTimeFormatter),
+            position = null //position.toString()
         )
     }
-
-
-
-
 
     companion object{
 

@@ -13,9 +13,9 @@ import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
-import retrofit2.Call
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 
 class TasksRepositoryImpl @Inject constructor(
@@ -60,7 +60,12 @@ class TasksRepositoryImpl @Inject constructor(
             tasksDao.insertAllIntoTaskLists(*taskListsEntity.toTypedArray())
             taskListsEntity.forEach { taskListsEntity ->
                 val tasksResponse = getTasksFromApi(taskListsEntity.id)
-                val tasksEntity = tasksResponse.map { taskMapper.mapResponseToEntity(it,account,taskListsEntity.id) }
+                val presentTasks = tasksDao.getTasksByID(account,taskListsEntity.id,tasksResponse.map { it.id ?: ""})
+                val tasksEntity = tasksResponse.map {tasksResponse->
+                    taskMapper.mapResponseToEntity(tasksResponse,
+                                                account,
+                                                taskListsEntity.id,
+                                        presentTasks.find { it.id == tasksResponse.id }?.internalId ?: UUID.randomUUID()) }
                 tasksDao.insertAllIntoTask(*tasksEntity.toTypedArray())
             }
         }
@@ -97,8 +102,8 @@ class TasksRepositoryImpl @Inject constructor(
         val account = userDataSource.getAccountName()
         val taskListId = userDataSource.getSelectedTaskListID()
         withContext(Dispatchers.IO){
-            val taskResponse = googleTasksApiService.insertTask(taskListId, taskMapper.mapDomainToResponse(task))
-            tasksDao.insertAllIntoTask(taskMapper.mapResponseToEntity(taskResponse,account,taskListId))
+            val taskResponse = googleTasksApiService.insertTask(taskListId, taskMapper.mapDomainToResponseCreate(task))
+            tasksDao.insertAllIntoTask(taskMapper.mapResponseToEntity(taskResponse,account,taskListId,task.internalId))
         }
     }
 }

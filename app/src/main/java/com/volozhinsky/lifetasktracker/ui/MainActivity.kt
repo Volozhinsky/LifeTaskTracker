@@ -8,6 +8,7 @@ import com.volozhinsky.lifetasktracker.R
 import com.volozhinsky.lifetasktracker.ui.tasks_list.TasksListBottomFragmentDirections
 import com.volozhinsky.lifetasktracker.ui.tasks_list.TasksListTopFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), CallBacks {
@@ -25,9 +26,9 @@ class MainActivity : AppCompatActivity(), CallBacks {
         })
     }
 
-    override fun onTaskSelected() {
+    override fun onTaskSelected(taskInternalId: UUID) {
 
-        val actionTop = TasksListTopFragmentDirections.actionTasksListTopFragmentToTaskDetailTopFragment()
+        val actionTop = TasksListTopFragmentDirections.actionTasksListTopFragmentToTaskDetailTopFragment(taskInternalId.toString())
         val actionBottom = TasksListBottomFragmentDirections.actionTasksListBottomFragmentToTaskDetailBottomInfoFragment()
         val navTop = findNavController(R.id.hostTopApp)
         val navBottom = findNavController(R.id.hostBottomApp)

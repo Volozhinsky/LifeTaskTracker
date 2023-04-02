@@ -17,5 +17,9 @@
     <fragment
         android:id="@+id/taskDetailTopFragment"
         android:name="com.volozhinsky.lifetasktracker.ui.task_details.TaskDetailTopFragment"
-        android:label="TaskDetailTopFragment" />
+        android:label="TaskDetailTopFragment" >
+        <argument
+            android:name="taskInternalId"
+            app:argType="string" />
+    </fragment>
 </navigation>

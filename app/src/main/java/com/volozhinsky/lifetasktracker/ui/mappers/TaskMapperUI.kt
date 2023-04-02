@@ -8,6 +8,7 @@ class TaskMapperUI @Inject constructor() {
     fun mapDomainToUi(response: Task): TaskUI = with(response) {
         TaskUI(
             id = id,
+            internalId = internalId,
             title = title,
             selfLink = selfLink,
             parent =parent,

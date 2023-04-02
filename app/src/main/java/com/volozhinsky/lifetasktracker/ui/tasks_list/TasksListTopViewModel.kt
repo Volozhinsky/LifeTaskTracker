@@ -10,6 +10,7 @@ import javax.inject.Inject
 import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
+import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
@@ -87,7 +88,9 @@ class TasksListTopViewModel @Inject constructor(
         tasksList.value?.get(listPos)?.let { prefs.setSelectedTaskListID(it.id) }
     }
 
-    fun addTask() {
-        viewModelScope.launch {getTasksUseCase.addTask()}
+    fun addTask():TaskUI {
+        val newTask = Task()
+        viewModelScope.launch {getTasksUseCase.addTask(newTask)}
+        return taskMapperUI.mapDomainToUi(newTask)
     }
 }

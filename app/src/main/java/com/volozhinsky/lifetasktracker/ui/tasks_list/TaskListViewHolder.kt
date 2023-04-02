@@ -12,7 +12,7 @@ class TaskListViewHolder(private val itemBinding: RvItemTaskBinding,
         itemBinding.tvTaskTitle.text = item.title
         itemBinding.tvTaskDate.text = item.due.toString()
         itemBinding.root.setOnClickListener{
-            listners.onItemClick(item.id)
+            listners.onItemClick(item)
         }
         itemBinding.tvTaskTitle.setOnClickListener {
             listners.onStartTiming(item)

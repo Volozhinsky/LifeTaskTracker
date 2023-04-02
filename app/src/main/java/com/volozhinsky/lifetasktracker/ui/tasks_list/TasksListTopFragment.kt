@@ -90,7 +90,8 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
         initRecycler()
         initSpinner()
         binding.fabAddTask.setOnClickListener {
-            tasksListTopViewModel.addTask()
+            val newTask = tasksListTopViewModel.addTask()
+            callBacks?.onTaskSelected(newTask.internalId)
         }
 
         tasksListTopViewModel.tasks.observe(viewLifecycleOwner){tasks ->
@@ -134,8 +135,8 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
         }
     }
 
-    override fun onItemClick(taskId: String) {
-        callBacks?.onTaskSelected()
+    override fun onItemClick(task: TaskUI) {
+        callBacks?.onTaskSelected(task.internalId)
     }
 
     override fun onStartTiming(task: TaskUI) {
