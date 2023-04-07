@@ -35,9 +35,11 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
             notes = notes,
             status = if(status) COMPLETE_STRING else NEEDS_ACTION,
             due = due,
-            position = position
+            position = position,
+            sinc = false
         )
     }
+
 
     fun mapResponseToEntity(response: TaskResponse, account: String,listId: String,internalId: UUID): TaskEntity = with(response) {
         TaskEntity(
@@ -53,7 +55,21 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
             due =due?.let {
                 LocalDateTime.parse(it,dateTimeFormatter)
             }   ?: LocalDateTime.MIN,
-            position = position?.toInt() ?: 0
+            position = position?.toInt() ?: 0,
+            sinc = true
+        )
+    }
+
+    fun mapEntityToResponse(response: TaskEntity): TaskResponse = with(response) {
+        TaskResponse(
+            id = id,
+            title = title,
+            selfLink = selfLink,
+            parent =parent,
+            notes = notes,
+            status = status,
+            due = due.format(dateTimeFormatter),
+            position = position.toString(),
         )
     }
 

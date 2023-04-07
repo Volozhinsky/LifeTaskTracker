@@ -7,9 +7,11 @@ import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.mappers.TaskMapperUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class TaskDetailTopViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
     private val taskMapperUI: TaskMapperUI,

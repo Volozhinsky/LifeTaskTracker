@@ -50,6 +50,20 @@ class TasksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun synchronizeTaskLists(){
+        synchronizeToGoogle()
+        synchronizeToDatabase()
+    }
+
+    suspend fun synchronizeToGoogle(){
+        withContext(Dispatchers.IO){
+            val unsincTask = tasksDao.getTasksUnsinc(queryProperties.account)
+            unsincTask.forEach {
+                googleTasksApiService.updateTask(it.listId,taskMapper.mapEntityToResponse(it))
+            }
+        }
+    }
+
+    suspend fun synchronizeToDatabase(){
         val taskListsResponse = getTaskListsFromApi()
         withContext(Dispatchers.IO){
             val taskListsEntity = taskListsResponse.map { taskListMapper.mapResponseToEntity(it,queryProperties.account) }
@@ -60,8 +74,8 @@ class TasksRepositoryImpl @Inject constructor(
                 val tasksEntity = tasksResponse.map {tasksResponse->
                     taskMapper.mapResponseToEntity(tasksResponse,
                         queryProperties.account,
-                                                taskListsEntity.id,
-                                        presentTasks.find { it.id == tasksResponse.id }?.internalId ?: UUID.randomUUID()) }
+                        taskListsEntity.id,
+                        presentTasks.find { it.id == tasksResponse.id }?.internalId ?: UUID.randomUUID()) }
                 tasksDao.insertAllIntoTask(*tasksEntity.toTypedArray())
             }
         }
@@ -102,18 +116,20 @@ class TasksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTask(taskInternalId: String): Task {
-        val task = tasksDao.getTasksByID(queryProperties.account,queryProperties.taskListId, listOf(taskInternalId))
-        return taskMapper.mapEntityToDomain(task.first())
+        return withContext(Dispatchers.IO){
+            val task = tasksDao.getTasksByID(queryProperties.account,queryProperties.taskListId, listOf(taskInternalId))
+            taskMapper.mapEntityToDomain(task.first())
+        }
     }
 
     override suspend fun saveTask(task: Task) {
-        tasksDao.insertAllIntoTask(taskMapper.mapDomainToEntity(task,queryProperties.account,queryProperties.taskListId))
+        return withContext(Dispatchers.IO){
+            tasksDao.insertAllIntoTask(taskMapper.mapDomainToEntity(task,queryProperties.account,queryProperties.taskListId))
+           }
     }
 
     private inner class QueryProperties{
         val account get() = userDataSource.getAccountName()
         val taskListId get() = userDataSource.getSelectedTaskListID()
     }
-
-
 }

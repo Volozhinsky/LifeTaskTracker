@@ -29,9 +29,14 @@ interface TasksDao {
             "FROM tasks " +
             "WHERE account = :account " +
             "AND listId= :taskListId " +
-            "AND id IN (:ids) ")
+            "AND internalId IN (:ids) ")
     fun getTasksByID(account: String, taskListId: String, ids: List<String>): List<TaskEntity>
 
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE account = :account " +
+            "AND NOT sinc  ")
+    fun getTasksUnsinc(account: String): List<TaskEntity>
 
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     fun insertAllIntoTaskLists(vararg taskListEntity: TaskListEntity)
