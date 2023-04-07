@@ -13,4 +13,5 @@ class GetTasksUseCase @Inject constructor(
     suspend fun addTask(task: Task){
         taskListRepository.insertTask(task)
     }
+
 }

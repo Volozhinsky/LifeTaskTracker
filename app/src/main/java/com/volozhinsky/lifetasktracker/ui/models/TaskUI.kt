@@ -6,11 +6,11 @@ import java.util.UUID
 data class TaskUI(
     val id: String,
     val internalId: UUID,
-    val title: String,
+    var title: String,
     val selfLink: String,
     val parent: String,
     val position: Int,
-    val notes: String,
-    val status: Boolean,
-    val due: LocalDateTime,
+    var notes: String,
+    var status: Boolean,
+    var due: LocalDateTime,
 )

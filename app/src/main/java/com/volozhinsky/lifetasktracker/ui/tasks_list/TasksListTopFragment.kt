@@ -94,9 +94,7 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
             callBacks?.onTaskSelected(newTask.internalId)
         }
 
-        tasksListTopViewModel.tasks.observe(viewLifecycleOwner){tasks ->
-            recyclerAdapter?.setAdapterData(tasks)
-        }
+
      }
 
     private fun initSpinner() {
@@ -132,6 +130,9 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
             layoutManager = LinearLayoutManager(this@TasksListTopFragment.context,
                 LinearLayoutManager.VERTICAL,
                 false)
+        }
+        tasksListTopViewModel.tasks.observe(viewLifecycleOwner){tasks ->
+            recyclerAdapter?.setAdapterData(tasks)
         }
     }
 

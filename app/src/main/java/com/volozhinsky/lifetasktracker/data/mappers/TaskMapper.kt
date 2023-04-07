@@ -23,6 +23,22 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
         )
     }
 
+    fun mapDomainToEntity(response: Task, account: String,listId: String): TaskEntity = with(response) {
+        TaskEntity(
+            account = account,
+            listId = listId,
+            id = id,
+            internalId = internalId,
+            title = title,
+            selfLink = selfLink,
+            parent =parent,
+            notes = notes,
+            status = if(status) COMPLETE_STRING else NEEDS_ACTION,
+            due = due,
+            position = position
+        )
+    }
+
     fun mapResponseToEntity(response: TaskResponse, account: String,listId: String,internalId: UUID): TaskEntity = with(response) {
         TaskEntity(
             account = account,
@@ -43,7 +59,6 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
 
     fun mapDomainToResponseCreate(response: Task): TaskResponse = with(response) {
         TaskResponse(
-
             id = null,
             title = null,
             selfLink = null,

@@ -26,25 +26,22 @@ class TasksRepositoryImpl @Inject constructor(
     private val userDataSource: UserDataSource
 ) : LifeTasksRepository, GoogleTasksRepository {
 
+    private val queryProperties = QueryProperties()
+
     override suspend fun getTaskLists(): List<TaskList> {
-        val account = userDataSource.getAccountName()
-        val items = withContext(Dispatchers.IO){ tasksDao.getTaskLists(account)}
+        val items = withContext(Dispatchers.IO){ tasksDao.getTaskLists(queryProperties.account)}
         return items.map { taskListMapper.mapEntityToDomain(it) }
     }
 
     override suspend fun getTasks(): List<Task> {
-        val account = userDataSource.getAccountName()
-        val taskListId = userDataSource.getSelectedTaskListID()
         val  items = withContext(Dispatchers.IO){
-            tasksDao.getTasks(account,taskListId)
+            tasksDao.getTasks(queryProperties.account,queryProperties.taskListId)
         }
         return items.map { taskMapper.mapEntityToDomain(it) }
     }
 
     override suspend fun getSelectedTaskList(): TaskList {
-        val account = userDataSource.getAccountName()
-        val selectedListId = userDataSource.getSelectedTaskListID()
-        val items = withContext(Dispatchers.IO){tasksDao.getSelectedTaskList(account,selectedListId)}
+        val items = withContext(Dispatchers.IO){tasksDao.getSelectedTaskList(queryProperties.account,queryProperties.taskListId)}
         if (items.isNotEmpty()){
             return items.map { taskListMapper.mapEntityToDomain(it) }.first()
         } else{
@@ -55,15 +52,14 @@ class TasksRepositoryImpl @Inject constructor(
     override suspend fun synchronizeTaskLists(){
         val taskListsResponse = getTaskListsFromApi()
         withContext(Dispatchers.IO){
-            val account = userDataSource.getAccountName()
-            val taskListsEntity = taskListsResponse.map { taskListMapper.mapResponseToEntity(it,account) }
+            val taskListsEntity = taskListsResponse.map { taskListMapper.mapResponseToEntity(it,queryProperties.account) }
             tasksDao.insertAllIntoTaskLists(*taskListsEntity.toTypedArray())
             taskListsEntity.forEach { taskListsEntity ->
                 val tasksResponse = getTasksFromApi(taskListsEntity.id)
-                val presentTasks = tasksDao.getTasksByID(account,taskListsEntity.id,tasksResponse.map { it.id ?: ""})
+                val presentTasks = tasksDao.getTasksByID(queryProperties.account,taskListsEntity.id,tasksResponse.map { it.id ?: ""})
                 val tasksEntity = tasksResponse.map {tasksResponse->
                     taskMapper.mapResponseToEntity(tasksResponse,
-                                                account,
+                        queryProperties.account,
                                                 taskListsEntity.id,
                                         presentTasks.find { it.id == tasksResponse.id }?.internalId ?: UUID.randomUUID()) }
                 tasksDao.insertAllIntoTask(*tasksEntity.toTypedArray())
@@ -99,11 +95,25 @@ class TasksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertTask(task: Task) {
-        val account = userDataSource.getAccountName()
-        val taskListId = userDataSource.getSelectedTaskListID()
         withContext(Dispatchers.IO){
-            val taskResponse = googleTasksApiService.insertTask(taskListId, taskMapper.mapDomainToResponseCreate(task))
-            tasksDao.insertAllIntoTask(taskMapper.mapResponseToEntity(taskResponse,account,taskListId,task.internalId))
+            val taskResponse = googleTasksApiService.insertTask(queryProperties.taskListId, taskMapper.mapDomainToResponseCreate(task))
+            tasksDao.insertAllIntoTask(taskMapper.mapResponseToEntity(taskResponse,queryProperties.account,queryProperties.taskListId,task.internalId))
         }
     }
+
+    override suspend fun getTask(taskInternalId: String): Task {
+        val task = tasksDao.getTasksByID(queryProperties.account,queryProperties.taskListId, listOf(taskInternalId))
+        return taskMapper.mapEntityToDomain(task.first())
+    }
+
+    override suspend fun saveTask(task: Task) {
+        tasksDao.insertAllIntoTask(taskMapper.mapDomainToEntity(task,queryProperties.account,queryProperties.taskListId))
+    }
+
+    private inner class QueryProperties{
+        val account get() = userDataSource.getAccountName()
+        val taskListId get() = userDataSource.getSelectedTaskListID()
+    }
+
+
 }

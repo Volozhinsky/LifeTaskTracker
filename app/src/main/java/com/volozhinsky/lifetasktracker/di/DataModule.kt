@@ -24,7 +24,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.jvm.internal.Intrinsics.Kotlin
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -36,9 +35,11 @@ object DataModule {
     }
 
     @Provides
-    fun provideCredential(@ApplicationContext context: Context): GoogleAccountCredential{
-        val credential = GoogleAccountCredential.usingOAuth2(context, Collections.singleton(TasksScopes.TASKS))
-        return credential
+    fun provideCredential(@ApplicationContext context: Context): GoogleAccountCredential {
+        return GoogleAccountCredential.usingOAuth2(
+            context,
+            Collections.singleton(TasksScopes.TASKS)
+        )
     }
 
     @Provides
