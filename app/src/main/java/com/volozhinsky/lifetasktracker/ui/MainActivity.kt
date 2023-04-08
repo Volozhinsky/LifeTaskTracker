@@ -26,9 +26,8 @@ class MainActivity : AppCompatActivity(), CallBacks {
         })
     }
 
-    override fun onTaskSelected(taskInternalId: UUID) {
-
-        val actionTop = TasksListTopFragmentDirections.actionTasksListTopFragmentToTaskDetailTopFragment(taskInternalId.toString())
+    override fun onTaskSelected(taskInternalId: String) {
+        val actionTop = TasksListTopFragmentDirections.actionTasksListTopFragmentToTaskDetailTopFragment(taskInternalId)
         val actionBottom = TasksListBottomFragmentDirections.actionTasksListBottomFragmentToTaskDetailBottomInfoFragment()
         val navTop = findNavController(R.id.hostTopApp)
         val navBottom = findNavController(R.id.hostBottomApp)

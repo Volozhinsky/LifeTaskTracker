@@ -73,15 +73,15 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
         )
     }
 
-    fun mapDomainToResponseCreate(response: Task): TaskResponse = with(response) {
+    fun mapEntityToResponseCreate(response: TaskEntity): TaskResponse = with(response) {
         TaskResponse(
             id = null,
-            title = null,
+            title = title,
             selfLink = null,
             parent =null,
-            notes = null,
-            status = null, //if(status) COMPLETE_STRING else NEEDS_ACTION,
-            due =null, //due.format(dateTimeFormatter),
+            notes = notes,
+            status = status, //if(status) COMPLETE_STRING else NEEDS_ACTION,
+            due =due.format(dateTimeFormatter), //due.format(dateTimeFormatter),
             position = null //position.toString()
         )
     }

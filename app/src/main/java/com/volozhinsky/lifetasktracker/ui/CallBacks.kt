@@ -4,5 +4,5 @@ import java.util.UUID
 
 interface CallBacks {
 
-    fun onTaskSelected(taskInternalID: UUID)
+    fun onTaskSelected(taskInternalID: String)
 }

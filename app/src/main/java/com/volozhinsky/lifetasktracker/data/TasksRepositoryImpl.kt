@@ -8,7 +8,7 @@ import com.volozhinsky.lifetasktracker.data.models.GetTasksResponse
 import com.volozhinsky.lifetasktracker.data.models.TaskListResponse
 import com.volozhinsky.lifetasktracker.data.models.TaskResponse
 import com.volozhinsky.lifetasktracker.data.network.GoogleTasksApiService
-import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
+import com.volozhinsky.lifetasktracker.data.pref.QueryProperties
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
@@ -23,10 +23,8 @@ class TasksRepositoryImpl @Inject constructor(
     private val taskListMapper: TaskListMapper,
     private val taskMapper: TaskMapper,
     private val tasksDao: TasksDao,
-    private val userDataSource: UserDataSource
+    private val queryProperties: QueryProperties
 ) : LifeTasksRepository, GoogleTasksRepository {
-
-    private val queryProperties = QueryProperties()
 
     override suspend fun getTaskLists(): List<TaskList> {
         val items = withContext(Dispatchers.IO){ tasksDao.getTaskLists(queryProperties.account)}
@@ -58,7 +56,11 @@ class TasksRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO){
             val unsincTask = tasksDao.getTasksUnsinc(queryProperties.account)
             unsincTask.forEach {
-                googleTasksApiService.updateTask(it.listId,taskMapper.mapEntityToResponse(it))
+                if (it.id.isNotEmpty()) {
+                    googleTasksApiService.updateTask(it.listId, taskMapper.mapEntityToResponse(it))
+                }else{
+                    googleTasksApiService.insertTask(it.listId,taskMapper.mapEntityToResponseCreate(it))
+                }
             }
         }
     }
@@ -110,9 +112,9 @@ class TasksRepositoryImpl @Inject constructor(
 
     override suspend fun insertTask(task: Task) {
         withContext(Dispatchers.IO){
-            val taskResponse = googleTasksApiService.insertTask(queryProperties.taskListId, taskMapper.mapDomainToResponseCreate(task))
-            tasksDao.insertAllIntoTask(taskMapper.mapResponseToEntity(taskResponse,queryProperties.account,queryProperties.taskListId,task.internalId))
+            tasksDao.insertAllIntoTask(taskMapper.mapDomainToEntity(task,queryProperties.account,queryProperties.taskListId))
         }
+        synchronizeToGoogle()
     }
 
     override suspend fun getTask(taskInternalId: String): Task {
@@ -126,10 +128,5 @@ class TasksRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO){
             tasksDao.insertAllIntoTask(taskMapper.mapDomainToEntity(task,queryProperties.account,queryProperties.taskListId))
            }
-    }
-
-    private inner class QueryProperties{
-        val account get() = userDataSource.getAccountName()
-        val taskListId get() = userDataSource.getSelectedTaskListID()
     }
 }
