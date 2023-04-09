@@ -27,6 +27,6 @@ interface GoogleTasksApiService {
     @POST("lists/{tasklist}/tasks/")
     suspend fun insertTask(@Path( "tasklist") tasklist: String, @Body task: TaskResponse):TaskResponse
 
-    @PUT("lists/{tasklist}/tasks/")
-    suspend fun updateTask(@Path( "tasklist") tasklist: String, @Body task: TaskResponse):TaskResponse
+    @PUT("lists/{tasklist}/tasks/{taskID}")
+    suspend fun updateTask(@Path( "tasklist") tasklist: String,@Path( "taskID")taskID: String, @Body task: TaskResponse):TaskResponse
 }

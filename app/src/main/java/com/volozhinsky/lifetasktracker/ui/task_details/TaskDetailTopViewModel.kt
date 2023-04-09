@@ -34,9 +34,9 @@ class TaskDetailTopViewModel @Inject constructor(
     }
 
     fun saveTask() {
-        taskLiveData.value?.let {
+        taskLiveData.value?.let {taskUI ->
             viewModelScope.launch {
-                repository.saveTask(taskMapperUI.mapUiToDomain(it))
+                repository.saveTask(taskMapperUI.mapUiToDomain(taskUI))
             }
         }
     }

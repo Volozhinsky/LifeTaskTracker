@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 import java.util.*
 
-@Entity(tableName = "tasks", primaryKeys = ["listId", "id", "account", "internalId"])
+@Entity(tableName = "tasks", primaryKeys = ["listId", "account", "internalId"])
 data class TaskEntity(
     @ColumnInfo("listId") val listId: String,
     @ColumnInfo("account") val account: String,

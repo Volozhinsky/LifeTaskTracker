@@ -61,10 +61,10 @@ class TasksListTopViewModel @Inject constructor(
 
     fun updateData() {
         if (prefs.getAccountName().isNotEmpty()) {
-            viewModelScope.launch { updateTasks() }
+            viewModelScope.launch { updateTaskLists() }
             viewModelScope.launch(exceptionHandler) {
                 repository.synchronizeTaskLists()
-                updateTasks()
+                updateTaskLists()
             }
         }
     }
@@ -77,20 +77,20 @@ class TasksListTopViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateTasks() {
+    fun updateTasks() {
+        viewModelScope.launch {
+            _tasks.value =
+                getTasksUseCase.getTasks().map { taskMapperUI.mapDomainToUi(it) }
+        }
+    }
+
+    private suspend fun updateTaskLists(){
         _tasksList.value =
             getTasksListUseCase.getTaskLists().map { taskListMapperUI.mapDomainToUi(it) }
-        _tasks.value =
-            getTasksUseCase.getTasks().map { taskMapperUI.mapDomainToUi(it) }
     }
 
     fun changeSelectedTaskList(listPos: Int) {
         tasksList.value?.get(listPos)?.let { prefs.setSelectedTaskListID(it.id) }
     }
 
-    fun addTask():TaskUI {
-        val newTask = Task()
-        viewModelScope.launch {getTasksUseCase.addTask(newTask)}
-        return taskMapperUI.mapDomainToUi(newTask)
-    }
 }

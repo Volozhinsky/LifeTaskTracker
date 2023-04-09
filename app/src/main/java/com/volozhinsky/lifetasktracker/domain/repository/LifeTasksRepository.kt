@@ -11,6 +11,4 @@ interface LifeTasksRepository {
 
     suspend fun getTasks(): List<Task>
 
-    suspend fun insertTask(task: Task)
-
 }

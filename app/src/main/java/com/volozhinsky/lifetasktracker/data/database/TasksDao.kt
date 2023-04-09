@@ -29,8 +29,15 @@ interface TasksDao {
             "FROM tasks " +
             "WHERE account = :account " +
             "AND listId= :taskListId " +
-            "AND internalId IN (:ids) ")
+            "AND id IN (:ids) ")
     fun getTasksByID(account: String, taskListId: String, ids: List<String>): List<TaskEntity>
+
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE account = :account " +
+            "AND listId= :taskListId " +
+            "AND internalId IN (:ids) ")
+    fun getTasksByInternalID(account: String, taskListId: String, ids: List<String>): List<TaskEntity>
 
     @Query("SELECT * " +
             "FROM tasks " +
