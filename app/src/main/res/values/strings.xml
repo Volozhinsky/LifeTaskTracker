@@ -4,4 +4,7 @@
     <string name="hello_blank_fragment">Top Top</string>
     <string name="hello_blank_fragment_bottom">bottom bottom</string>
     <string name="add_task_button_text">Add task</string>
+    <string name="etNotesHint">Описание</string>
+    <string name="etTitleHint">Заголовок</string>
+    <string name="etDueHint">Срок</string>
 </resources>

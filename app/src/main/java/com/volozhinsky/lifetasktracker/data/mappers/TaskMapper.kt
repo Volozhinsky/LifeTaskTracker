@@ -3,7 +3,9 @@ package com.volozhinsky.lifetasktracker.data.mappers
 import com.volozhinsky.lifetasktracker.data.database.TaskEntity
 import com.volozhinsky.lifetasktracker.data.models.TaskResponse
 import com.volozhinsky.lifetasktracker.domain.models.Task
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
@@ -54,7 +56,7 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
             status = status ?: "",
             due =due?.let {
                 LocalDateTime.parse(it,dateTimeFormatter)
-            }   ?: LocalDateTime.MIN,
+            }   ?: LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
             position = position?.toInt() ?: 0,
             sinc = true
         )

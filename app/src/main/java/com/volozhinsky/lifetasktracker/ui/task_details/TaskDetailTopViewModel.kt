@@ -11,6 +11,7 @@ import com.volozhinsky.lifetasktracker.ui.mappers.TaskMapperUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -18,6 +19,7 @@ class TaskDetailTopViewModel @Inject constructor(
     private val getTasksUseCase: GetTasksUseCase,
     private val taskMapperUI: TaskMapperUI,
     private val repository: GoogleTasksRepository,
+    val formatter: DateTimeFormatter,
 ) : ViewModel() {
     private var _taskLiveData = MutableLiveData<TaskUI>()
     val taskLiveData get() = _taskLiveData

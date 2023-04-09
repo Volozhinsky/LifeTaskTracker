@@ -4,19 +4,20 @@ import androidx.room.TypeConverter
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.temporal.ChronoField
 import java.util.*
 
 class TaskDataBaseTypeConverters {
     @TypeConverter
     fun fromDate(date: LocalDateTime): Long {
-        return date.getLong(ChronoField.CLOCK_HOUR_OF_DAY)
+        return date.atZone(ZoneOffset.UTC).toInstant().toEpochMilli()
     }
 
     @TypeConverter
     fun toDate(millisSinceEpoch: Long?): LocalDateTime? {
-        return millisSinceEpoch?.let {
-            Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDateTime()
+        return millisSinceEpoch?.let {value ->
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneOffset.UTC)
         }
     }
 
