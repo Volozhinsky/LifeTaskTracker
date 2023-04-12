@@ -20,6 +20,8 @@ import com.volozhinsky.lifetasktracker.ui.models.TaskListUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
+import javax.inject.Named
 
 @HiltViewModel
 class TasksListTopViewModel @Inject constructor(
@@ -31,7 +33,8 @@ class TasksListTopViewModel @Inject constructor(
     private val getTasksListUseCase: GetTasksListUseCase,
     private val getTasksUseCase: GetTasksUseCase,
     private val taskListMapperUI: TaskListMapperUI,
-    private val taskMapperUI: TaskMapperUI
+    private val taskMapperUI: TaskMapperUI,
+    @Named("ui") val formatter: DateTimeFormatter,
 ) : ViewModel() {
 
     private var _tasksList = MutableLiveData<List<TaskListUI>>()
@@ -52,6 +55,9 @@ class TasksListTopViewModel @Inject constructor(
             else -> throw ex
         }
     }
+    var showCompleeted: Boolean
+        get() = prefs.getShowCompleted()
+        set(value) = prefs.setShowCompleted(value)
 
     fun saveUserAccountName(accountName: String) {
         prefs.setAccountName(accountName)
@@ -69,7 +75,7 @@ class TasksListTopViewModel @Inject constructor(
         }
     }
 
-    fun updateSelectedList(){
+    fun updateSelectedList() {
         val selectedTaskListId = prefs.getSelectedTaskListID()
         _tasksList.value?.let { tasklists ->
             _selectedTaskListIndex.value =
@@ -80,11 +86,11 @@ class TasksListTopViewModel @Inject constructor(
     fun updateTasks() {
         viewModelScope.launch {
             _tasks.value =
-                getTasksUseCase.getTasks().map { taskMapperUI.mapDomainToUi(it) }
+                getTasksUseCase.getTasks(showCompleeted).map { taskMapperUI.mapDomainToUi(it) }
         }
     }
 
-    private suspend fun updateTaskLists(){
+    private suspend fun updateTaskLists() {
         _tasksList.value =
             getTasksListUseCase.getTaskLists().map { taskListMapperUI.mapDomainToUi(it) }
     }
@@ -93,4 +99,11 @@ class TasksListTopViewModel @Inject constructor(
         tasksList.value?.get(listPos)?.let { prefs.setSelectedTaskListID(it.id) }
     }
 
+    fun saveTask(taskUI: TaskUI) {
+        viewModelScope.launch {
+            repository.saveTask(taskMapperUI.mapUiToDomain(taskUI))
+            updateTasks()
+        }
+
+    }
 }

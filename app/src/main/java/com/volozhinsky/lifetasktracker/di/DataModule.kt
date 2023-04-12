@@ -2,6 +2,7 @@ package com.volozhinsky.lifetasktracker.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.ContextCompat
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -12,6 +13,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.services.tasks.TasksScopes
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.volozhinsky.lifetasktracker.R
 import com.volozhinsky.lifetasktracker.data.database.AppDataBase
 import com.volozhinsky.lifetasktracker.data.database.TasksDao
 import com.volozhinsky.lifetasktracker.data.network.GoogleRequestInterceptor
@@ -24,6 +26,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.inject.Named
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -85,8 +88,15 @@ object DataModule {
     }
 
     @Provides
-    fun provideDateTimeFormatter(): DateTimeFormatter {
+    @Named("api")
+    fun provideAPIDateTimeFormatter(): DateTimeFormatter {
         return DateTimeFormatter.ofPattern(DATE_FORMAT,Locale.ENGLISH)
+    }
+
+    @Provides
+    @Named("ui")
+    fun provideUIDateTimeFormatter(@ApplicationContext context: Context): DateTimeFormatter {
+        return DateTimeFormatter.ofPattern(context.getString(R.string.dateFormat),Locale.ENGLISH)
     }
 
     private const val PREFS_KEY = "prefs_key"

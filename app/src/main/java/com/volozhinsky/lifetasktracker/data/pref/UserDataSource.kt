@@ -19,9 +19,16 @@ class UserDataSource @Inject constructor(
         putString(SELECTED_TASK_LIST_ID,taskListId)
     }
 
+    fun setShowCompleted(value: Boolean) = prefs.edit{
+        putBoolean(SHOW_COMPLEETED,value)
+    }
+
+    fun getShowCompleted(): Boolean = prefs.getBoolean(SHOW_COMPLEETED,false)
+
     companion object {
         private const val ACCOUNT_NAME_KEY = "ACCOUNT_NAME_KEY"
         private const val SELECTED_TASK_LIST_ID = "SELECTED_TASK_LIST_ID"
         private const val EMPTY_STRING = ""
+        private const val SHOW_COMPLEETED = "SHOW_COMPLEETED"
     }
 }

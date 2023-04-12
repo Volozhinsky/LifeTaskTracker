@@ -7,4 +7,6 @@
     <string name="etNotesHint">Описание</string>
     <string name="etTitleHint">Заголовок</string>
     <string name="etDueHint">Срок</string>
+    <string name="addFabContentDescribtion">Добавить</string>
+    <string name="dateFormat">dd.MM.yyyy  HH:mm</string>
 </resources>

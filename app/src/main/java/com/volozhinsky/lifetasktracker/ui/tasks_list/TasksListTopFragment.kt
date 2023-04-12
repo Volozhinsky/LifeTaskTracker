@@ -92,14 +92,17 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
         binding.fabAddTask.setOnClickListener {
             callBacks?.onTaskSelected("")
         }
-
-
+        binding.cbShowCompleted.isChecked = tasksListTopViewModel.showCompleeted
+        binding.cbShowCompleted.setOnClickListener {
+            tasksListTopViewModel.showCompleeted = binding.cbShowCompleted.isChecked
+            tasksListTopViewModel.updateTasks()
+        }
      }
 
     private fun initSpinner() {
         val adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_item_task_lists,
             mutableListOf<String>()
         )
         binding.taskListsSpinner.adapter = adapter
@@ -123,7 +126,7 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
     }
 
     private fun initRecycler() {
-        recyclerAdapter = TaskListAdapter(this)
+        recyclerAdapter = TaskListAdapter(this,tasksListTopViewModel.formatter)
         binding.taskRecicler.apply {
             adapter = recyclerAdapter
             layoutManager = LinearLayoutManager(this@TasksListTopFragment.context,
@@ -142,4 +145,9 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
     override fun onStartTiming(task: TaskUI) {
 
     }
+
+    override fun onStatusClick(task: TaskUI) {
+        tasksListTopViewModel.saveTask(task)
+    }
+
 }

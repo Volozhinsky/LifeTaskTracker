@@ -31,8 +31,10 @@
             android:id="@+id/etNotes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName"
             android:hint="@string/etNotesHint"
+            android:inputType="textPersonName"
+            android:minLines="4"
+            android:singleLine="false"
             android:text="@{viewModel.taskLiveData.notes}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -47,5 +49,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etNotes" />
+
+        <CheckBox
+            android:id="@+id/cbStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/etTitle"
+            app:layout_constraintTop_toTopOf="parent"
+            android:checked="@{viewModel.taskLiveData.status}"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

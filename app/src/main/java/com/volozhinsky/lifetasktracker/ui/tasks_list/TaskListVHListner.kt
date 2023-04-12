@@ -7,4 +7,6 @@ interface TaskListVHListner {
     fun onItemClick(task: TaskUI)
 
     fun onStartTiming(task: TaskUI)
+
+    fun onStatusClick(task: TaskUI)
 }

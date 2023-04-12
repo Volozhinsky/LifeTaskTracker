@@ -55,7 +55,15 @@ class TaskDetailTopFragment : Fragment() {
         initTextTitle()
         initTextNotes()
         initDateDue()
+        initCheckBoxStatus()
+    }
 
+    private fun initCheckBoxStatus() {
+        binding.cbStatus.setOnClickListener { view ->
+            viewModel.taskLiveData.value?.let{task ->
+                task.status = binding.cbStatus.isChecked
+            }
+        }
     }
 
     private fun initTextTitle(){
@@ -97,7 +105,7 @@ class TaskDetailTopFragment : Fragment() {
             val datePickerDialog = DatePickerDialog(
                 requireContext(),{view, year, monthOfYear, dayOfMonth ->
                     viewModel.taskLiveData.value?.let {task ->
-                        task.due = LocalDateTime.of(year,monthOfYear,dayOfMonth,0,0)
+                        task.due = LocalDateTime.of(year,monthOfYear+1,dayOfMonth,0,0)
                     }
                     initTimeDue()
                 },

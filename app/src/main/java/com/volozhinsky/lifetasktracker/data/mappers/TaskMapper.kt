@@ -9,8 +9,9 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
+import javax.inject.Named
 
-class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFormatter) {
+class TaskMapper @Inject constructor(@Named("api") private val dateTimeFormatter : DateTimeFormatter) {
     fun mapEntityToDomain(response: TaskEntity): Task = with(response) {
         Task(
             id = id,
@@ -41,7 +42,6 @@ class TaskMapper @Inject constructor(private val dateTimeFormatter : DateTimeFor
             sinc = false
         )
     }
-
 
     fun mapResponseToEntity(response: TaskResponse, account: String,listId: String,internalId: UUID): TaskEntity = with(response) {
         TaskEntity(

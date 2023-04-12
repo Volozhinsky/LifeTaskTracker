@@ -5,8 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.volozhinsky.lifetasktracker.databinding.RvItemTaskBinding
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
+import java.time.format.DateTimeFormatter
 
-class TaskListAdapter(private val listners: TaskListVHListner) :
+class TaskListAdapter(private val listners: TaskListVHListner,
+                      private val formatter: DateTimeFormatter) :
     RecyclerView.Adapter<TaskListViewHolder>() {
 
     private val taskList: MutableList<TaskUI> = mutableListOf()
@@ -14,7 +16,7 @@ class TaskListAdapter(private val listners: TaskListVHListner) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskListViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val taskBinding = RvItemTaskBinding.inflate(layoutInflater,parent,false)
-        return TaskListViewHolder(taskBinding,listners)
+        return TaskListViewHolder(taskBinding,listners,formatter)
     }
 
     override fun onBindViewHolder(holder: TaskListViewHolder, position: Int) {

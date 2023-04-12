@@ -8,7 +8,11 @@ class GetTasksUseCase @Inject constructor(
     private val taskListRepository: LifeTasksRepository
 ) {
 
-    suspend fun getTasks(): List<Task> = taskListRepository.getTasks()
-
-
+    suspend fun getTasks(showCompleted: Boolean): List<Task>{
+        return if(showCompleted){
+             taskListRepository.getTasks()
+        } else{
+            taskListRepository.getTasks().filter { !it.status }
+        }
+    }
 }
