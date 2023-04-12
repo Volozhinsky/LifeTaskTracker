@@ -2,6 +2,8 @@ package com.volozhinsky.lifetasktracker.data
 
 import com.volozhinsky.lifetasktracker.data.database.TaskListEntity
 import com.volozhinsky.lifetasktracker.data.database.TasksDao
+import com.volozhinsky.lifetasktracker.data.mappers.AudioDescriptionMapper
+import com.volozhinsky.lifetasktracker.data.mappers.PhotoDescriptionMapper
 import com.volozhinsky.lifetasktracker.data.mappers.TaskListMapper
 import com.volozhinsky.lifetasktracker.data.mappers.TaskMapper
 import com.volozhinsky.lifetasktracker.data.models.GetTasksResponse
@@ -12,7 +14,10 @@ import com.volozhinsky.lifetasktracker.data.pref.QueryProperties
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
+import com.volozhinsky.lifetasktracker.ui.DescriptionsRepository
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
+import com.volozhinsky.lifetasktracker.ui.models.AudioDescriptionUI
+import com.volozhinsky.lifetasktracker.ui.models.PhotoDescriptionUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -23,8 +28,10 @@ class TasksRepositoryImpl @Inject constructor(
     private val taskListMapper: TaskListMapper,
     private val taskMapper: TaskMapper,
     private val tasksDao: TasksDao,
-    private val queryProperties: QueryProperties
-) : LifeTasksRepository, GoogleTasksRepository {
+    private val queryProperties: QueryProperties,
+    private val photoDescriptionMapper: PhotoDescriptionMapper,
+    private val audioDescriptionMapper: AudioDescriptionMapper
+) : LifeTasksRepository, GoogleTasksRepository, DescriptionsRepository {
 
     override suspend fun getTaskLists(): List<TaskList> {
         val items = withContext(Dispatchers.IO){ tasksDao.getTaskLists(queryProperties.account)}
@@ -122,7 +129,32 @@ class TasksRepositoryImpl @Inject constructor(
     override suspend fun saveTask(task: Task) {
         withContext(Dispatchers.IO){
             tasksDao.insertAllIntoTask(taskMapper.mapDomainToEntity(task,queryProperties.account,queryProperties.taskListId))
-           // synchronizeToGoogle()
            }
+    }
+
+   override suspend fun getPhotoDescriptions(taskInternalId: UUID): List<PhotoDescriptionUI> {
+       return withContext(Dispatchers.IO) {
+             tasksDao.getPhotoDescriptions(taskInternalId)
+                .map { photoDescriptionMapper.mapEntityToUI(it) }
+        }
+    }
+
+    override suspend fun getAudioDescriptions(taskInternalId: UUID): List<AudioDescriptionUI> {
+        return withContext(Dispatchers.IO) {
+             tasksDao.getAudioDescriptions(taskInternalId)
+                .map { audioDescriptionMapper.mapEntityToUI(it) }
+        }
+    }
+
+    override suspend fun addPhotoDescription(photoDescription: PhotoDescriptionUI) {
+        return withContext(Dispatchers.IO) {
+            tasksDao.addPhotoDescription(photoDescriptionMapper.mapUIToEntity(photoDescription))
+        }
+    }
+
+    override suspend fun addAudioDescription(audioDescriptionUI: AudioDescriptionUI) {
+        withContext(Dispatchers.IO) {
+            tasksDao.addAudioDescription((audioDescriptionMapper.mapUIToEntity(audioDescriptionUI)))
+        }
     }
 }

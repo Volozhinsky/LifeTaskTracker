@@ -52,6 +52,7 @@ class TaskDetailTopFragment : Fragment() {
     private fun initViews() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
+        viewModel.initobserve()
         initTextTitle()
         initTextNotes()
         initDateDue()

@@ -1,9 +1,8 @@
 package com.volozhinsky.lifetasktracker.data.database
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.lifecycle.LiveData
+import androidx.room.*
+import java.util.*
 
 @Dao
 interface TasksDao {
@@ -50,4 +49,27 @@ interface TasksDao {
 
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     fun insertAllIntoTask(vararg taskEntity: TaskEntity)
+
+    @Query("SELECT * FROM PhotoDescription WHERE taskInternalId = (:taskInternalId)")
+    fun getPhotoDescriptions(taskInternalId: UUID): List<PhotoDescriptionEntity>
+    @Query("SELECT * FROM PhotoDescription WHERE id = (:id)")
+    fun getPhotoDescription(id:UUID): PhotoDescriptionEntity
+
+    @Update
+    fun updatePhotoDescription(photoDescription:PhotoDescriptionEntity)
+
+    @Insert
+    fun addPhotoDescription(photoDescription:PhotoDescriptionEntity)
+
+    @Query("SELECT * FROM AudioDescription WHERE taskInternalId = (:taskInternalId)")
+    fun getAudioDescriptions(taskInternalId: UUID): List<AudioDescriptionEntity>
+
+    @Query("SELECT * FROM AudioDescription WHERE id = (:id)")
+    fun getAudioDescription(id:UUID): PhotoDescriptionEntity
+
+    @Update
+    fun updateAudioDescription(audioDescription:AudioDescriptionEntity)
+
+    @Insert
+    fun addAudioDescription(audioDescription:AudioDescriptionEntity)
 }

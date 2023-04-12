@@ -24,6 +24,7 @@ import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Named
@@ -97,6 +98,12 @@ object DataModule {
     @Named("ui")
     fun provideUIDateTimeFormatter(@ApplicationContext context: Context): DateTimeFormatter {
         return DateTimeFormatter.ofPattern(context.getString(R.string.dateFormat),Locale.ENGLISH)
+    }
+
+    @Provides
+    @Named("filesDir")
+    fun provideFilesDir(@ApplicationContext context: Context): File{
+        return context.filesDir
     }
 
     private const val PREFS_KEY = "prefs_key"

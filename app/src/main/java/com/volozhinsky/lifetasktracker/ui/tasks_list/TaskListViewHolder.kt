@@ -10,8 +10,7 @@ class TaskListViewHolder(
     private val itemBinding: RvItemTaskBinding,
     private val listners: TaskListVHListner,
     private val formatter: DateTimeFormatter
-) :
-    RecyclerView.ViewHolder(itemBinding.root) {
+) :   RecyclerView.ViewHolder(itemBinding.root) {
 
     fun bind(item: TaskUI) {
         itemBinding.tvTaskTitle.text = item.title
