@@ -20,8 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:inputType="textPersonName"
             android:hint="@string/etTitleHint"
+            android:inputType="textPersonName"
             android:text="@{viewModel.taskLiveData.title}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,8 +29,8 @@
 
         <EditText
             android:id="@+id/etNotes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:hint="@string/etNotesHint"
             android:inputType="textPersonName"
             android:minLines="4"
@@ -38,25 +38,73 @@
             android:text="@{viewModel.taskLiveData.notes}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/etTitle"
+            app:layout_constraintBottom_toTopOf="@+id/etDue"/>
 
         <TextView
             android:id="@+id/etDue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/etDueHint"
+            android:layout_margin="5dp"
             android:text="@{viewModel.taskLiveData.due.format(viewModel.formatter)}"
-            app:layout_constraintEnd_toEndOf="parent"
+
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etNotes" />
+            app:layout_constraintBottom_toTopOf="@+id/glSplitDescriptions"
+            tools:text="10.04.2023 23:55" />
 
         <CheckBox
             android:id="@+id/cbStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:checked="@{viewModel.taskLiveData.status}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/etTitle"
-            app:layout_constraintTop_toTopOf="parent"
-            android:checked="@{viewModel.taskLiveData.status}"/>
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPhotos"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/fabAddPhoto"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/glSplitRecycler"
+            tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            tools:itemCount="7"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/glSplitRecycler"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.40"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/glSplitDescriptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.2"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAudios"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/rvPhotos"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/glSplitDescriptions"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAddPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_camera" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

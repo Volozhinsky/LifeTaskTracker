@@ -35,6 +35,7 @@ class TaskDetailTopViewModel @Inject constructor(
     val taskLiveData get() = _taskLiveData
     private var _photoDescriptionList = MutableLiveData<List<PhotoDescriptionUI>>()
     val photoDescriptionList get() = _photoDescriptionList
+    var newPhotoDescriptionUI: PhotoDescriptionUI? = null
     private var _audioDescriptionList = MutableLiveData<List<AudioDescriptionUI>>()
     val audioDescriptionList get() = _audioDescriptionList
     var recordingInProgress = false
@@ -71,8 +72,8 @@ class TaskDetailTopViewModel @Inject constructor(
 
     fun createNewPhotoFile(): File? {
         return taskLiveData.value?.let { task ->
-            val newPhotoDescriptionUI = PhotoDescriptionUI(taskInternalId = task.internalId)
-            newPhotoDescriptionUI.getPhotoFile(filesDir)
+            newPhotoDescriptionUI = PhotoDescriptionUI(taskInternalId = task.internalId)
+            newPhotoDescriptionUI?.getPhotoFile(filesDir)
         }
     }
 
@@ -85,6 +86,13 @@ class TaskDetailTopViewModel @Inject constructor(
 
     fun initobserve() {
         taskLiveData.observeForever(taskLiveDataObserver)
+    }
+
+    fun addNewPhotoDescription(photoDescriptionUI: PhotoDescriptionUI){
+        viewModelScope.launch {
+            descriptionsRepository.addPhotoDescription(photoDescriptionUI)
+
+        }
     }
 
     override fun onCleared() {

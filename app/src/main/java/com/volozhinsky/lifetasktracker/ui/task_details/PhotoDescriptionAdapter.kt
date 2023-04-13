@@ -21,4 +21,10 @@ class PhotoDescriptionAdapter(): RecyclerView.Adapter<PhotoDescriptionViewHolder
     }
 
     override fun getItemCount(): Int = photos.size
+
+    fun setAdapterData(list: List<PhotoDescriptionUI>){
+        photos.clear()
+        photos.addAll(list)
+        notifyDataSetChanged()
+    }
 }

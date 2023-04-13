@@ -9,11 +9,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.GridLayoutManager
 import com.volozhinsky.lifetasktracker.R
 import com.volozhinsky.lifetasktracker.databinding.FragmentTaskDetailTopBinding
+import com.volozhinsky.lifetasktracker.ui.tasks_list.TaskListAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDateTime
 import java.util.*
@@ -25,6 +29,16 @@ class TaskDetailTopFragment : Fragment() {
     private val binding get() = _binding!!
     private val args: TaskDetailTopFragmentArgs by navArgs()
     private val viewModel by viewModels<TaskDetailTopViewModel>()
+    private var photoRecyclerAdapter:PhotoDescriptionAdapter? = null
+    private val photoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) {okFhoto ->
+        if (okFhoto) {
+            viewModel.newPhotoDescriptionUI?.let {
+                viewModel.addNewPhotoDescription(it)
+                viewModel.getTask(args.taskInternalId)
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,6 +71,29 @@ class TaskDetailTopFragment : Fragment() {
         initTextNotes()
         initDateDue()
         initCheckBoxStatus()
+        initPhotoRecycler()
+        initAddPhotoFab()
+    }
+
+    private fun initAddPhotoFab() {
+        binding.fabAddPhoto.setOnClickListener {
+            val uri =  viewModel.createNewPhotoFile()?.let {file ->
+                FileProvider.getUriForFile(requireContext(),FILE_PROVIDER_AUTHORITY,file)
+            }
+            photoLauncher.launch(uri)
+        }
+    }
+
+    private fun initPhotoRecycler() {
+        photoRecyclerAdapter = PhotoDescriptionAdapter()
+        binding.rvPhotos.apply {
+            adapter = photoRecyclerAdapter
+            layoutManager = GridLayoutManager(this.context,3)
+        }
+
+        viewModel.photoDescriptionList.observe(viewLifecycleOwner){
+            photoRecyclerAdapter?.setAdapterData(it)
+        }
     }
 
     private fun initCheckBoxStatus() {
@@ -133,5 +170,9 @@ class TaskDetailTopFragment : Fragment() {
             true
             )
         timePickerDialog.show()
+    }
+
+    companion object{
+        private const val FILE_PROVIDER_AUTHORITY = "com.volozhinsky.lifetasktracker.fileprovider"
     }
 }
