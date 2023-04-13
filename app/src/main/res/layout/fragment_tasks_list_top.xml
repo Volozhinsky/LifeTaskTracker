@@ -14,13 +14,13 @@
             android:layout_marginBottom="24dp"
             android:gravity="center"
             android:padding="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/taskRecicler"
+            app:layout_constraintBottom_toTopOf="@+id/taskRecycler"
             app:layout_constraintEnd_toStartOf="@id/cbShowCompleted"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/taskRecicler"
+            android:id="@+id/taskRecycler"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:contentDescription="@string/addFabContentDescribtion"
-            app:layout_constraintBottom_toBottomOf="@+id/taskRecicler"
+            app:layout_constraintBottom_toBottomOf="@+id/taskRecycler"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@android:drawable/ic_input_add" />
 

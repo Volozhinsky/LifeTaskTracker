@@ -4,8 +4,6 @@ import android.accounts.AccountManager
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,12 +13,10 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.volozhinsky.lifetasktracker.R
 import com.volozhinsky.lifetasktracker.databinding.FragmentTasksListTopBinding
 import com.volozhinsky.lifetasktracker.ui.CallBacks
-import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -127,7 +123,7 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
 
     private fun initRecycler() {
         recyclerAdapter = TaskListAdapter(this,tasksListTopViewModel.formatter)
-        binding.taskRecicler.apply {
+        binding.taskRecycler.apply {
             adapter = recyclerAdapter
             layoutManager = LinearLayoutManager(this@TasksListTopFragment.context,
                 LinearLayoutManager.VERTICAL,
