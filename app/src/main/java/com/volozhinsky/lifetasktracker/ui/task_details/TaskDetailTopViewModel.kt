@@ -1,5 +1,8 @@
 package com.volozhinsky.lifetasktracker.ui.task_details
 
+import android.media.MediaPlayer
+import android.media.MediaRecorder
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
@@ -18,19 +21,20 @@ import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.IOException
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Named
 
 @HiltViewModel
 class TaskDetailTopViewModel @Inject constructor(
-    private val getTasksUseCase: GetTasksUseCase,
     private val taskMapperUI: TaskMapperUI,
     private val repository: GoogleTasksRepository,
     @Named("ui") val formatter: DateTimeFormatter,
     private val descriptionsRepository: DescriptionsRepository,
     @Named("filesDir") private val filesDir: File,
-    private val prefs: UserDataSource,
+    private val prefs: UserDataSource
 ) : ViewModel() {
 
     private var _taskLiveData = MutableLiveData<TaskUI>()
@@ -38,11 +42,12 @@ class TaskDetailTopViewModel @Inject constructor(
     private var _photoDescriptionList = MutableLiveData<List<PhotoDescriptionUI>>()
     val photoDescriptionList get() = _photoDescriptionList
     var newPhotoDescriptionUI: PhotoDescriptionUI? = null
+    var newAudioDescriptionUI: AudioDescriptionUI? = null
     private var _audioDescriptionList = MutableLiveData<List<AudioDescriptionUI>>()
     val audioDescriptionList get() = _audioDescriptionList
     var recordingInProgress = false
     var plaingInProgress = false
-    val taskLiveDataObserver = Observer<TaskUI>(){task ->
+    val taskLiveDataObserver = Observer<TaskUI>() { task ->
         viewModelScope.launch {
             _photoDescriptionList.value =
                 descriptionsRepository.getPhotoDescriptions(task.internalId)
@@ -52,18 +57,21 @@ class TaskDetailTopViewModel @Inject constructor(
                 descriptionsRepository.getAudioDescriptions(task.internalId)
         }
     }
-
+    private var audioRecorder: MediaRecorder? = null
+    private var audioPlayer: MediaPlayer? = null
 
     fun getTask(taskInternalId: String) {
         val activeTaskId = prefs.getCurrentTaskId()
         if (taskInternalId.isNotEmpty()) {
             viewModelScope.launch {
                 val task = repository.getTask(taskInternalId)
-                _taskLiveData.value = taskMapperUI.mapDomainToUi(task,activeTaskId == task.internalId.toString())
+                _taskLiveData.value =
+                    taskMapperUI.mapDomainToUi(task, activeTaskId == task.internalId.toString())
             }
         } else {
-                val task = Task()
-            _taskLiveData.value = taskMapperUI.mapDomainToUi(task,activeTaskId == task.internalId.toString())
+            val task = Task()
+            _taskLiveData.value =
+                taskMapperUI.mapDomainToUi(task, activeTaskId == task.internalId.toString())
         }
     }
 
@@ -84,8 +92,11 @@ class TaskDetailTopViewModel @Inject constructor(
 
     fun createNewAudioFile(): File? {
         return taskLiveData.value?.let { task ->
-            val newAudioDescriptionUI = AudioDescriptionUI(taskInternalId = task.internalId)
-            newAudioDescriptionUI.getAudioFile(filesDir)
+            newAudioDescriptionUI = AudioDescriptionUI(
+                taskInternalId = task.internalId,
+                recordDate = LocalDateTime.now()
+            )
+            newAudioDescriptionUI?.getAudioFile(filesDir)
         }
     }
 
@@ -93,15 +104,74 @@ class TaskDetailTopViewModel @Inject constructor(
         taskLiveData.observeForever(taskLiveDataObserver)
     }
 
-    fun addNewPhotoDescription(photoDescriptionUI: PhotoDescriptionUI){
+    fun addNewPhotoDescription(photoDescriptionUI: PhotoDescriptionUI) {
         viewModelScope.launch {
             descriptionsRepository.addPhotoDescription(photoDescriptionUI)
-
         }
     }
 
     override fun onCleared() {
         super.onCleared()
         taskLiveData.removeObserver(taskLiveDataObserver)
+    }
+
+    fun startRecording() {
+        taskLiveData.value?.let { task ->
+            audioRecorder = MediaRecorder().apply {
+                setAudioSource(MediaRecorder.AudioSource.MIC)
+                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                setOutputFile(createNewAudioFile())
+                setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+
+                try {
+                    prepare()
+                } catch (e: IOException) {
+                    Log.e(LOG_TAG, "prepare() failed")
+                }
+                start()
+                recordingInProgress = true
+            }
+        }
+    }
+
+    fun stopRecording() {
+        audioRecorder?.apply {
+            stop()
+            release()
+        }
+        audioRecorder = null
+        recordingInProgress = false
+    }
+
+    fun startPlaying(fileName: String) {
+        audioPlayer = MediaPlayer().apply {
+            try {
+                setDataSource(fileName)
+                prepare()
+                start()
+                plaingInProgress = true
+                setOnCompletionListener { stopPlaing() }
+            } catch (e: IOException) {
+                Log.e(LOG_TAG, "prepare() failed")
+            }
+        }
+    }
+
+    fun stopPlaing() {
+        audioPlayer?.release()
+        audioPlayer = null
+        plaingInProgress = false
+    }
+
+    fun addNewAudioDescription() {
+        newAudioDescriptionUI?.let {
+            viewModelScope.launch {
+                descriptionsRepository.addAudioDescription(it)
+            }
+        }
+    }
+
+    companion object {
+        const val LOG_TAG = "AudioRecord"
     }
 }

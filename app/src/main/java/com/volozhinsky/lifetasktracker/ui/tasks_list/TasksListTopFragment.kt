@@ -137,7 +137,7 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
         recyclerAdapter = TaskListAdapter(this,tasksListTopViewModel.formatter)
         binding.taskRecycler.apply {
             adapter = recyclerAdapter
-            layoutManager = LinearLayoutManager(this@TasksListTopFragment.context,
+            layoutManager = LinearLayoutManager(requireContext(),
                 LinearLayoutManager.VERTICAL,
                 false)
         }

@@ -11,4 +11,5 @@
     <string name="dateFormat">dd.MM.yyyy  HH:mm</string>
     <string name="unknownEx">Ошибка соединения с сетью</string>
     <string name="addDue">Добавить срок</string>
+    <string name="fabPhotoContentDescription">Фото</string>
 </resources>

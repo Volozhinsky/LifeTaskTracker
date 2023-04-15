@@ -200,7 +200,8 @@ class TasksRepositoryImpl @Inject constructor(
 
     override suspend fun addAudioDescription(audioDescriptionUI: AudioDescriptionUI) {
         withContext(Dispatchers.IO) {
-            tasksDao.addAudioDescription((audioDescriptionMapper.mapUIToEntity(audioDescriptionUI)))
+            tasksDao.addAudioDescription((audioDescriptionMapper.mapUIToEntity(audioDescriptionUI,
+                LocalDateTime.now())))
         }
     }
 

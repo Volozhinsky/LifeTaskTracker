@@ -2,6 +2,7 @@ package com.volozhinsky.lifetasktracker.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.media.MediaRecorder
 import androidx.core.content.ContextCompat
 import androidx.room.Room
 import dagger.Module
@@ -105,6 +106,12 @@ object DataModule {
     fun provideFilesDir(@ApplicationContext context: Context): File{
         return context.filesDir
     }
+
+    @Provides
+    fun provideMediaRecorder(@ApplicationContext context: Context): MediaRecorder{
+        return MediaRecorder()
+    }
+
 
     private const val PREFS_KEY = "prefs_key"
     private const val DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"

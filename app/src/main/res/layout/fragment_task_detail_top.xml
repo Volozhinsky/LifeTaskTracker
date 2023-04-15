@@ -85,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.2"/>
+            app:layout_constraintGuide_percent="0.25"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvAudios"
@@ -94,16 +94,26 @@
             app:layout_constraintBottom_toTopOf="@+id/rvPhotos"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/glSplitDescriptions"/>
+            app:layout_constraintTop_toBottomOf="@+id/cbTakeAudio"
+            app:layout_constraintVertical_bias="1.0" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAddPhoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
+            android:contentDescription="@string/fabPhotoContentDescription"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@android:drawable/ic_menu_camera" />
+
+        <CheckBox
+            android:id="@+id/cbTakeAudio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/glSplitDescriptions"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etNotes" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
