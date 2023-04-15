@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="dayCases">
+        <item>день</item>
+        <item>дня</item>
+        <item>дней</item>
+    </string-array>
+
+    <string-array name="hourCases">
+        <item>час</item>
+        <item>часа</item>
+        <item>часов</item>
+    </string-array>
+
+    <string-array name="minutesCases">
+        <item>минута</item>
+        <item>минуты</item>
+        <item>минут</item>
+    </string-array>
+</resources>

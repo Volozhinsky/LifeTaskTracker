@@ -1,6 +1,8 @@
 package com.volozhinsky.lifetasktracker.domain.models
 
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 
 class Task(
@@ -12,5 +14,8 @@ class Task(
     val position: Int = 0,
     val notes: String = "",
     val status: Boolean = false,
-    val due: LocalDateTime = LocalDateTime.MIN,
+    val due: LocalDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
+    val logDays: Int =0,
+    val logHours: Int = 0,
+    val logMinutes: Int = 0
 )

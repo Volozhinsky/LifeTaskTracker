@@ -1,15 +1,19 @@
 package com.volozhinsky.lifetasktracker.ui.tasks_list
 
 import android.content.Intent
+import android.widget.Toast
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.UserRecoverableAuthException
+import com.volozhinsky.lifetasktracker.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
+import com.volozhinsky.lifetasktracker.domain.StartTimeLogUseCase
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
@@ -32,6 +36,7 @@ class TasksListTopViewModel @Inject constructor(
     private val repository: GoogleTasksRepository,
     private val getTasksListUseCase: GetTasksListUseCase,
     private val getTasksUseCase: GetTasksUseCase,
+    private val startTimeLogUseCase: StartTimeLogUseCase,
     private val taskListMapperUI: TaskListMapperUI,
     private val taskMapperUI: TaskMapperUI,
     @Named("ui") val formatter: DateTimeFormatter,
@@ -44,7 +49,11 @@ class TasksListTopViewModel @Inject constructor(
     private var _loadExIntent = MutableLiveData<Intent>()
     val loadExIntent get() = _loadExIntent
     private var _selectedTaskListIndex = MutableLiveData<Int>()
+    private var _loadingProgressBarLiveData = MutableLiveData<Boolean>()
+    val loadingProgressBarLiveData get() = _loadingProgressBarLiveData
     val selectedTaskListIndex get() = _selectedTaskListIndex
+    private val _errorliveData = MutableLiveData<Int>()
+    val errorliveData: LiveData<Int> get() = _errorliveData
     private val exceptionHandler = CoroutineExceptionHandler { _, ex ->
         when (ex) {
             is UserRecoverableAuthException -> {
@@ -52,7 +61,10 @@ class TasksListTopViewModel @Inject constructor(
                     this._loadExIntent.value = it
                 }
             }
-            else -> throw ex
+            else -> {
+                _errorliveData.value = R.string.unknownEx
+                _loadingProgressBarLiveData.postValue(false)
+            }
         }
     }
     var showCompleeted: Boolean
@@ -69,8 +81,10 @@ class TasksListTopViewModel @Inject constructor(
         if (prefs.getAccountName().isNotEmpty()) {
             viewModelScope.launch { updateTaskLists() }
             viewModelScope.launch(exceptionHandler) {
+                _loadingProgressBarLiveData.value = true
                 repository.synchronizeTaskLists()
                 updateTaskLists()
+                _loadingProgressBarLiveData.value = false
             }
         }
     }
@@ -85,8 +99,11 @@ class TasksListTopViewModel @Inject constructor(
 
     fun updateTasks() {
         viewModelScope.launch {
+            val activeTaskId = prefs.getCurrentTaskId()
             _tasks.value =
-                getTasksUseCase.getTasks(showCompleeted).map { taskMapperUI.mapDomainToUi(it) }
+                getTasksUseCase.getTasks(showCompleeted).map {
+                    taskMapperUI.mapDomainToUi(it, it.internalId.toString() == activeTaskId)
+                }
         }
     }
 
@@ -102,6 +119,20 @@ class TasksListTopViewModel @Inject constructor(
     fun saveTask(taskUI: TaskUI) {
         viewModelScope.launch {
             repository.saveTask(taskMapperUI.mapUiToDomain(taskUI))
+            updateTasks()
+        }
+    }
+
+    fun startLog(taskUI: TaskUI) {
+        viewModelScope.launch {
+            startTimeLogUseCase.startLog(taskMapperUI.mapUiToDomain(taskUI))
+            updateTasks()
+        }
+    }
+
+    fun stopLog() {
+        viewModelScope.launch {
+            startTimeLogUseCase.stopLog()
             updateTasks()
         }
 

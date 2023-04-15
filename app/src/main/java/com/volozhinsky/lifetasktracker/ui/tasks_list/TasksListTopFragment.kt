@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -85,6 +86,17 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
     private fun initViews() {
         initRecycler()
         initSpinner()
+        initlisteners()
+        initLifeData()
+     }
+
+    private fun initLifeData() {
+        tasksListTopViewModel.loadingProgressBarLiveData.observe(viewLifecycleOwner){
+            binding.pbLoading.isVisible =it
+        }
+    }
+
+    private fun initlisteners() {
         binding.fabAddTask.setOnClickListener {
             callBacks?.onTaskSelected("")
         }
@@ -93,7 +105,7 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
             tasksListTopViewModel.showCompleeted = binding.cbShowCompleted.isChecked
             tasksListTopViewModel.updateTasks()
         }
-     }
+    }
 
     private fun initSpinner() {
         val adapter = ArrayAdapter(
@@ -138,8 +150,12 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
         callBacks?.onTaskSelected(task.internalId.toString())
     }
 
-    override fun onStartTiming(task: TaskUI) {
-
+    override fun onStartTiming(task: TaskUI,active: Boolean) {
+        if (active){
+            tasksListTopViewModel.startLog(task)
+        }else {
+            tasksListTopViewModel.stopLog()
+        }
     }
 
     override fun onStatusClick(task: TaskUI) {

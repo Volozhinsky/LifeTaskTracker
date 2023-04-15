@@ -9,4 +9,6 @@
     <string name="etDueHint">Срок</string>
     <string name="addFabContentDescribtion">Добавить</string>
     <string name="dateFormat">dd.MM.yyyy  HH:mm</string>
+    <string name="unknownEx">Ошибка соединения с сетью</string>
+    <string name="addDue">Добавить срок</string>
 </resources>

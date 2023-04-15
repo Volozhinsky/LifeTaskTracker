@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.volozhinsky.lifetasktracker.R
 import com.volozhinsky.lifetasktracker.databinding.FragmentTaskDetailTopBinding
 import com.volozhinsky.lifetasktracker.ui.tasks_list.TaskListAdapter
+import com.volozhinsky.lifetasktracker.ui.utils.UtilsLocalDateTime.formatEmptyString
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDateTime
 import java.util.*
@@ -135,6 +136,10 @@ class TaskDetailTopFragment : Fragment() {
     }
 
     private fun initDateDue(){
+        viewModel.taskLiveData.observe(viewLifecycleOwner){
+            binding.etDue.text = it.due.formatEmptyString(viewModel.formatter,getString(R.string.addDue))
+        }
+
         binding.etDue.setOnClickListener {
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)

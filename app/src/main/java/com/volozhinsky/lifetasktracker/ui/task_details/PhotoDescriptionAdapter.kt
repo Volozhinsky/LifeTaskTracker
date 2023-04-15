@@ -13,6 +13,7 @@ class PhotoDescriptionAdapter(): RecyclerView.Adapter<PhotoDescriptionViewHolder
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoDescriptionViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val photoDescriptionBinding = RvItemPhotoDescriptionBinding.inflate(layoutInflater,parent,false)
+        photoDescriptionBinding.root.layoutParams.height = (parent.height * 0.3).toInt()
         return PhotoDescriptionViewHolder(photoDescriptionBinding)
     }
 

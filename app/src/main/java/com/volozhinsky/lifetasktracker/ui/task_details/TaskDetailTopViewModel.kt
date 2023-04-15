@@ -5,6 +5,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.volozhinsky.lifetasktracker.data.pref.QueryProperties
+import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.ui.DescriptionsRepository
@@ -28,7 +29,8 @@ class TaskDetailTopViewModel @Inject constructor(
     private val repository: GoogleTasksRepository,
     @Named("ui") val formatter: DateTimeFormatter,
     private val descriptionsRepository: DescriptionsRepository,
-    @Named("filesDir") private val filesDir: File
+    @Named("filesDir") private val filesDir: File,
+    private val prefs: UserDataSource,
 ) : ViewModel() {
 
     private var _taskLiveData = MutableLiveData<TaskUI>()
@@ -53,12 +55,15 @@ class TaskDetailTopViewModel @Inject constructor(
 
 
     fun getTask(taskInternalId: String) {
+        val activeTaskId = prefs.getCurrentTaskId()
         if (taskInternalId.isNotEmpty()) {
             viewModelScope.launch {
-                _taskLiveData.value = taskMapperUI.mapDomainToUi(repository.getTask(taskInternalId))
+                val task = repository.getTask(taskInternalId)
+                _taskLiveData.value = taskMapperUI.mapDomainToUi(task,activeTaskId == task.internalId.toString())
             }
         } else {
-            _taskLiveData.value = taskMapperUI.mapDomainToUi(Task())
+                val task = Task()
+            _taskLiveData.value = taskMapperUI.mapDomainToUi(task,activeTaskId == task.internalId.toString())
         }
     }
 

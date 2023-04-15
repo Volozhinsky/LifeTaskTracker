@@ -5,7 +5,7 @@ import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import javax.inject.Inject
 
 class TaskMapperUI @Inject constructor() {
-    fun mapDomainToUi(response: Task): TaskUI = with(response) {
+    fun mapDomainToUi(response: Task, active: Boolean): TaskUI = with(response) {
         TaskUI(
             id = id,
             internalId = internalId,
@@ -15,7 +15,11 @@ class TaskMapperUI @Inject constructor() {
             notes = notes,
             status = status,
             due = due,
-            position = position
+            position = position,
+            logDays = logDays,
+            logHours = logHours,
+            logMinutes = logMinutes,
+            activeTask = active
         )
     }
 

@@ -1,8 +1,7 @@
 package com.volozhinsky.lifetasktracker.data.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
-import java.util.*
+import java.util.UUID
 
 @Dao
 interface TasksDao {
@@ -72,4 +71,10 @@ interface TasksDao {
 
     @Insert
     fun addAudioDescription(audioDescription:AudioDescriptionEntity)
+
+    @Query("SELECT * FROM TimeLog WHERE listId = (:taskListId)")
+    fun getTameLogs(taskListId: String): List<TimeLogEntity>
+
+    @Insert
+    fun addTimeLog(timeLog: TimeLogEntity)
 }
