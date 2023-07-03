@@ -1,12 +1,13 @@
 package com.volozhinsky.lifetasktracker.domain.repository
 
+import androidx.lifecycle.LiveData
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.models.TimeLog
 
 interface LifeTasksRepository {
 
-    suspend fun getTaskLists(): List<TaskList>
+    fun getTaskLists(): LiveData<List<TaskList>>
 
     suspend fun getSelectedTaskList(): TaskList
 

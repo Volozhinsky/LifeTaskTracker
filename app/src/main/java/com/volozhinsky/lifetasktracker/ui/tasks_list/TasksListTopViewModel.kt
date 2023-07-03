@@ -1,9 +1,9 @@
 package com.volozhinsky.lifetasktracker.ui.tasks_list
 
 import android.content.Intent
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.UserRecoverableAuthException
@@ -14,7 +14,6 @@ import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
 import com.volozhinsky.lifetasktracker.domain.StartTimeLogUseCase
-import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
@@ -30,7 +29,6 @@ import javax.inject.Named
 @HiltViewModel
 class TasksListTopViewModel @Inject constructor(
     private val prefs: UserDataSource,
-    //  private val credential: GoogleAccountCredential, //Q нужно ли доп поле для доступа?
     val chooseAccountContract: ChooseAccountContract,
     val userRecoverableAuthContract: UserRecoverableAuthContract,
     private val repository: GoogleTasksRepository,
@@ -42,8 +40,7 @@ class TasksListTopViewModel @Inject constructor(
     @Named("ui") val formatter: DateTimeFormatter,
 ) : ViewModel() {
 
-    private var _tasksList = MutableLiveData<List<TaskListUI>>()
-    val tasksList get() = _tasksList
+    val tasksList get() = getTaskListLiveData()
     private var _tasks = MutableLiveData<List<TaskUI>>()
     val tasks get() = _tasks
     private var _loadExIntent = MutableLiveData<Intent>()
@@ -79,11 +76,10 @@ class TasksListTopViewModel @Inject constructor(
 
     fun updateData() {
         if (prefs.getAccountName().isNotEmpty()) {
-            viewModelScope.launch { updateTaskLists() }
             viewModelScope.launch(exceptionHandler) {
                 _loadingProgressBarLiveData.value = true
                 repository.synchronizeTaskLists()
-                updateTaskLists()
+
                 _loadingProgressBarLiveData.value = false
             }
         }
@@ -91,7 +87,7 @@ class TasksListTopViewModel @Inject constructor(
 
     fun updateSelectedList() {
         val selectedTaskListId = prefs.getSelectedTaskListID()
-        _tasksList.value?.let { tasklists ->
+        tasksList.value?.let { tasklists ->
             _selectedTaskListIndex.value =
                 tasklists.indexOf(tasklists.find { it.id == selectedTaskListId })
         }
@@ -107,9 +103,12 @@ class TasksListTopViewModel @Inject constructor(
         }
     }
 
-    private suspend fun updateTaskLists() {
-        _tasksList.value =
-            getTasksListUseCase.getTaskLists().map { taskListMapperUI.mapDomainToUi(it) }
+
+    fun getTaskListLiveData(): LiveData<List<TaskListUI>> {
+        val tasklistLDomainLiveData = getTasksListUseCase.getTaskLists()
+        return Transformations.map(tasklistLDomainLiveData) { taskList ->
+            taskList.map { taskListMapperUI.mapDomainToUi(it) }
+        }
     }
 
     fun changeSelectedTaskList(listPos: Int) {

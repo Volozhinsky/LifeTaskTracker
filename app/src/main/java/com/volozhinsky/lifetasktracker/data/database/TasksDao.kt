@@ -1,5 +1,6 @@
 package com.volozhinsky.lifetasktracker.data.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import java.util.UUID
 
@@ -9,7 +10,7 @@ interface TasksDao {
     @Query("SELECT * " +
             "FROM task_lists " +
             "WHERE account = :account")
-    fun getTaskLists(account: String): List<TaskListEntity>
+    fun getTaskLists(account: String): LiveData<List<TaskListEntity>>
 
     @Query("SELECT * " +
             "FROM task_lists " +

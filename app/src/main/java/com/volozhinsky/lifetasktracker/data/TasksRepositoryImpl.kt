@@ -1,5 +1,7 @@
 package com.volozhinsky.lifetasktracker.data
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.volozhinsky.lifetasktracker.data.database.TaskListEntity
 import com.volozhinsky.lifetasktracker.data.database.TasksDao
 import com.volozhinsky.lifetasktracker.data.database.TimeLogEntity
@@ -38,10 +40,12 @@ class TasksRepositoryImpl @Inject constructor(
     private val timeLogMapper: TimeLogMapper
 ) : LifeTasksRepository, GoogleTasksRepository, DescriptionsRepository {
 
-    override suspend fun getTaskLists(): List<TaskList> {
-        val items = withContext(Dispatchers.IO) { tasksDao.getTaskLists(queryProperties.account) }
-        return items.map { taskListMapper.mapEntityToDomain(it) }
-    }
+    override  fun getTaskLists(): LiveData<List<TaskList>> {
+        val itemsLiveData= tasksDao.getTaskLists(queryProperties.account)
+        return Transformations.map(itemsLiveData){ taskList ->
+            taskList.map { taskListMapper.mapEntityToDomain(it) }
+        }
+     }
 
     override suspend fun getTasks(): List<Task> {
         val items = withContext(Dispatchers.IO) {
