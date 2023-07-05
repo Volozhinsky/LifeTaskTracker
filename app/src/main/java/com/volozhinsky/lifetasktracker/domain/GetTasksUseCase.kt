@@ -1,5 +1,7 @@
 package com.volozhinsky.lifetasktracker.domain
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.volozhinsky.lifetasktracker.data.mappers.TaskMapper
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TimeLog
@@ -11,34 +13,42 @@ class GetTasksUseCase @Inject constructor(
     private val taskListRepository: LifeTasksRepository
 ) {
 
-    suspend fun getTasks(showCompleted: Boolean): List<Task> {
-        val tasks = taskListRepository.getTasks()
+    suspend fun getTasks(showCompleted: Boolean): LiveData<List<Task>> {
+        val tasksLiveData = taskListRepository.getTasks()
         val timeLogs = taskListRepository.getTimeLog()
         return if (showCompleted) {
-            calculateLog(tasks,timeLogs)
+            calculateLog(tasksLiveData, timeLogs)
         } else {
-            calculateLog(tasks.filter { !it.status },timeLogs)
+            val filteredTasks = Transformations.map(tasksLiveData) { tasks ->
+                tasks.filter { !it.status }
+            }
+            calculateLog(filteredTasks, timeLogs)
         }
     }
 
-    private fun calculateLog(task: List<Task>, timeLog: List<TimeLog>): List<Task> {
-        return task.map { task ->
-            val filteredTimeLog = timeLog.filter { it.taskInternalId == task.internalId }
-            val milliseconds = calculateMilliseconds(filteredTimeLog)
-            Task(
-                id = task.id,
-                internalId = task.internalId,
-                title = task.title,
-                selfLink = task.selfLink,
-                parent = task.parent,
-                notes = task.notes,
-                status = task.status,
-                due = task.due,
-                position = task.position,
-                logDays = calculateDays(milliseconds),
-                logHours = calculateHours(milliseconds),
-                logMinutes = calculateMinutes(milliseconds)
-            )
+    private fun calculateLog(
+        task: LiveData<List<Task>>,
+        timeLog: List<TimeLog>
+    ): LiveData<List<Task>> {
+        return Transformations.map(task) { taskList ->
+            taskList.map { task ->
+                val filteredTimeLog = timeLog.filter { it.taskInternalId == task.internalId }
+                val milliseconds = calculateMilliseconds(filteredTimeLog)
+                Task(
+                    id = task.id,
+                    internalId = task.internalId,
+                    title = task.title,
+                    selfLink = task.selfLink,
+                    parent = task.parent,
+                    notes = task.notes,
+                    status = task.status,
+                    due = task.due,
+                    position = task.position,
+                    logDays = calculateDays(milliseconds),
+                    logHours = calculateHours(milliseconds),
+                    logMinutes = calculateMinutes(milliseconds)
+                )
+            }
         }
     }
 

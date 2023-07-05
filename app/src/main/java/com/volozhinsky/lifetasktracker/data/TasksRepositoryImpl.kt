@@ -47,26 +47,14 @@ class TasksRepositoryImpl @Inject constructor(
         }
      }
 
-    override suspend fun getTasks(): List<Task> {
-        val items = withContext(Dispatchers.IO) {
+    override suspend fun getTasks(): LiveData<List<Task>> {
+        val items =
             tasksDao.getTasks(queryProperties.account, queryProperties.taskListId)
-        }
-        return items.map { taskMapper.mapEntityToDomain(it) }
+
+        return Transformations.map(items) { taskListEntity ->
+            taskListEntity.map { taskMapper.mapEntityToDomain(it) }}
     }
 
-    override suspend fun getSelectedTaskList(): TaskList {
-        val items = withContext(Dispatchers.IO) {
-            tasksDao.getSelectedTaskList(
-                queryProperties.account,
-                queryProperties.taskListId
-            )
-        }
-        if (items.isNotEmpty()) {
-            return items.map { taskListMapper.mapEntityToDomain(it) }.first()
-        } else {
-            return taskListMapper.mapEntityToDomain(TaskListEntity("", "", "", ""))
-        }
-    }
 
     override suspend fun synchronizeTaskLists() {
         synchronizeToGoogle()

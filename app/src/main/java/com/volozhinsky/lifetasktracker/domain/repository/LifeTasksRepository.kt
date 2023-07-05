@@ -9,9 +9,7 @@ interface LifeTasksRepository {
 
     fun getTaskLists(): LiveData<List<TaskList>>
 
-    suspend fun getSelectedTaskList(): TaskList
-
-    suspend fun getTasks(): List<Task>
+    suspend fun getTasks(): LiveData<List<Task>>
 
     suspend fun startTimeLog(task: Task)
 

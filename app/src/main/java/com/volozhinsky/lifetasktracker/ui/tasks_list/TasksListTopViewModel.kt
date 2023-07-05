@@ -41,8 +41,12 @@ class TasksListTopViewModel @Inject constructor(
 ) : ViewModel() {
 
     val tasksList get() = getTaskListLiveData()
-    private var _tasks = MutableLiveData<List<TaskUI>>()
-    val tasks get() = _tasks
+    val tasks: LiveData<List<TaskUI>> get() = getTasksLiveData()
+
+    private fun getTasksLiveData(): LiveData<List<TaskUI>> {
+
+    }
+
     private var _loadExIntent = MutableLiveData<Intent>()
     val loadExIntent get() = _loadExIntent
     private var _selectedTaskListIndex = MutableLiveData<Int>()

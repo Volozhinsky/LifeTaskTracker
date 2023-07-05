@@ -13,16 +13,10 @@ interface TasksDao {
     fun getTaskLists(account: String): LiveData<List<TaskListEntity>>
 
     @Query("SELECT * " +
-            "FROM task_lists " +
-            "WHERE account = :account "+
-            "AND id= :id ")
-    fun getSelectedTaskList(account: String, id: String): List<TaskListEntity>
-
-    @Query("SELECT * " +
             "FROM tasks " +
             "WHERE account = :account "+
             "AND listId= :taskListId ")
-    fun getTasks(account: String, taskListId: String): List<TaskEntity>
+    fun getTasks(account: String, taskListId: String): LiveData<List<TaskEntity>>
 
     @Query("SELECT * " +
             "FROM tasks " +

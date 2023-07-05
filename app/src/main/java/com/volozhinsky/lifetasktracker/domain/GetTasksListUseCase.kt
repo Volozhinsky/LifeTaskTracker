@@ -10,7 +10,4 @@ class GetTasksListUseCase @Inject constructor(
     private val taskListRepository: LifeTasksRepository
 ) {
     fun getTaskLists(): LiveData<List<TaskList>> = taskListRepository.getTaskLists()
-
-    suspend fun getSelectedTaskList(): TaskList = taskListRepository.getSelectedTaskList()
-
 }
