@@ -4,17 +4,17 @@ import androidx.lifecycle.LiveData
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.models.TimeLog
+import kotlinx.coroutines.flow.Flow
 
 interface LifeTasksRepository {
 
-    fun getTaskLists(): LiveData<List<TaskList>>
+    suspend fun getTaskLists(): Flow<List<TaskList>>
 
-    suspend fun getTasks(): LiveData<List<Task>>
+    fun getTasksFromTaskList(showComplete: Boolean): LiveData<List<Task>>
 
     suspend fun startTimeLog(task: Task)
 
     suspend fun stopTimeLog()
 
-    suspend fun getTimeLog(): List<TimeLog>
-
+    fun getTimeLog(): LiveData<List<TimeLog>>
 }

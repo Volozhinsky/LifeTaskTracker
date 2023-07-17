@@ -20,7 +20,7 @@ class TaskMapper @Inject constructor(@Named("api") private val dateTimeFormatter
             selfLink = selfLink,
             parent =parent,
             notes = notes,
-            status = status == COMPLETE_STRING,
+            status = status,
             due = due,
             position = position
         )
@@ -36,7 +36,7 @@ class TaskMapper @Inject constructor(@Named("api") private val dateTimeFormatter
             selfLink = selfLink,
             parent =parent,
             notes = notes,
-            status = if(status) COMPLETE_STRING else NEEDS_ACTION,
+            status = status,
             due = due,
             position = position,
             sinc = false
@@ -53,7 +53,7 @@ class TaskMapper @Inject constructor(@Named("api") private val dateTimeFormatter
             selfLink = selfLink ?: "",
             parent =parent ?: "",
             notes = notes ?: "",
-            status = status ?: "",
+            status = status == COMPLETE_STRING,
             due =due?.let {
                 LocalDateTime.parse(it,dateTimeFormatter)
             }   ?: LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
@@ -69,28 +69,28 @@ class TaskMapper @Inject constructor(@Named("api") private val dateTimeFormatter
             selfLink = selfLink,
             parent =parent,
             notes = notes,
-            status = status,
+            status = if(status) COMPLETE_STRING else NEEDS_ACTION,
             due = due.format(dateTimeFormatter),
             position = position.toString(),
         )
     }
 
-    fun mapEntityToResponseCreate(response: TaskEntity): TaskResponse = with(response) {
+    fun mapEntityToResponseCreate(entity: TaskEntity): TaskResponse = with(entity) {
         TaskResponse(
             id = null,
             title = title,
             selfLink = null,
             parent =null,
             notes = notes,
-            status = status, //if(status) COMPLETE_STRING else NEEDS_ACTION,
+            status = if(status) COMPLETE_STRING else NEEDS_ACTION,
             due =due.format(dateTimeFormatter), //due.format(dateTimeFormatter),
             position = null //position.toString()
         )
     }
 
-    companion object{
+    companion object {
 
         const val COMPLETE_STRING = "completed"
-        const val NEEDS_ACTION =  "needsAction"
+        const val NEEDS_ACTION = "needsAction"
     }
 }

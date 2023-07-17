@@ -16,7 +16,7 @@ class TaskDataBaseTypeConverters {
 
     @TypeConverter
     fun toDate(millisSinceEpoch: Long?): LocalDateTime? {
-        return millisSinceEpoch?.let {value ->
+        return millisSinceEpoch?.let { value ->
             LocalDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneOffset.UTC)
         }
     }
@@ -30,4 +30,20 @@ class TaskDataBaseTypeConverters {
     fun toUUIDnullable(uuid: String?): UUID? {
         return uuid?.let { UUID.fromString(uuid) }
     }
+
+//    @TypeConverter
+//    fun toTaskStatus(statusEntity: Boolean?): TaskStatus? {
+//        return statusEntity?.let {
+//            if (it) {
+//                TaskStatus.COMPLETE
+//            } else {
+//                TaskStatus.NEEDS_ACTION
+//            }
+//        }
+//    }
+//
+//    @TypeConverter
+//    fun fromTaskStatus(taskStatus: TaskStatus): Boolean? {
+//        return taskStatus.status
+//    }
 }

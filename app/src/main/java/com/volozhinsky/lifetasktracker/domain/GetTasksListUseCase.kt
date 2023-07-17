@@ -4,10 +4,11 @@ import androidx.lifecycle.LiveData
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetTasksListUseCase @Inject constructor(
     private val taskListRepository: LifeTasksRepository
 ) {
-    fun getTaskLists(): LiveData<List<TaskList>> = taskListRepository.getTaskLists()
+    suspend fun getTaskLists(): Flow<List<TaskList>> = taskListRepository.getTaskLists()
 }

@@ -19,7 +19,7 @@ data class TaskEntity(
     @ColumnInfo("parent") val parent: String,
     @ColumnInfo("position") val position: Int,
     @ColumnInfo("notes") val notes: String,
-    @ColumnInfo("status") val status: String,
+    @ColumnInfo("status") val status: Boolean,
     @ColumnInfo("due") val due: LocalDateTime,
     @ColumnInfo("sinc") val sinc: Boolean
 )

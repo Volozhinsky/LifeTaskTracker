@@ -40,12 +40,9 @@ class TasksListTopViewModel @Inject constructor(
     @Named("ui") val formatter: DateTimeFormatter,
 ) : ViewModel() {
 
-    val tasksList get() = getTaskListLiveData()
-    val tasks: LiveData<List<TaskUI>> get() = getTasksLiveData()
-
-    private fun getTasksLiveData(): LiveData<List<TaskUI>> {
-
-    }
+    private var _taskListLiveData = MutableLiveData<List<TaskListUI>>()
+    val tasksListLiveData get() = _taskListLiveData
+    val tasks: LiveData<List<TaskUI>> get() = updateTasks()
 
     private var _loadExIntent = MutableLiveData<Intent>()
     val loadExIntent get() = _loadExIntent
@@ -86,37 +83,33 @@ class TasksListTopViewModel @Inject constructor(
 
                 _loadingProgressBarLiveData.value = false
             }
+            viewModelScope.launch {
+                getTasksListUseCase.getTaskLists().collect{ taskList ->
+                    _taskListLiveData.value = taskList.map { taskListMapperUI.mapDomainToUi(it)
+                    }
+                }
+            }
         }
     }
 
     fun updateSelectedList() {
         val selectedTaskListId = prefs.getSelectedTaskListID()
-        tasksList.value?.let { tasklists ->
+        tasksListLiveData.value?.let { tasklists ->
             _selectedTaskListIndex.value =
                 tasklists.indexOf(tasklists.find { it.id == selectedTaskListId })
         }
     }
 
-    fun updateTasks() {
-        viewModelScope.launch {
-            val activeTaskId = prefs.getCurrentTaskId()
-            _tasks.value =
-                getTasksUseCase.getTasks(showCompleeted).map {
-                    taskMapperUI.mapDomainToUi(it, it.internalId.toString() == activeTaskId)
-                }
-        }
-    }
-
-
-    fun getTaskListLiveData(): LiveData<List<TaskListUI>> {
-        val tasklistLDomainLiveData = getTasksListUseCase.getTaskLists()
-        return Transformations.map(tasklistLDomainLiveData) { taskList ->
-            taskList.map { taskListMapperUI.mapDomainToUi(it) }
+    fun updateTasks(): LiveData<List<TaskUI>> {
+        val activeTaskId = prefs.getCurrentTaskId()
+        val tasksLiveData = getTasksUseCase.getTasks(showCompleeted)
+        return Transformations.map(tasksLiveData){ tasks ->
+            tasks.map { taskMapperUI.mapDomainToUi(it, it.internalId.toString() == activeTaskId) }
         }
     }
 
     fun changeSelectedTaskList(listPos: Int) {
-        tasksList.value?.get(listPos)?.let { prefs.setSelectedTaskListID(it.id) }
+        tasksListLiveData.value?.get(listPos)?.let { prefs.setSelectedTaskListID(it.id) }
     }
 
     fun saveTask(taskUI: TaskUI) {

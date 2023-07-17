@@ -122,7 +122,7 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
 
             override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
-        tasksListTopViewModel.tasksList.observe(viewLifecycleOwner){taskLists ->
+        tasksListTopViewModel.tasksListLiveData.observe(viewLifecycleOwner){ taskLists ->
             adapter.clear()
             adapter.addAll(taskLists.map { it.title })
             adapter.notifyDataSetChanged()

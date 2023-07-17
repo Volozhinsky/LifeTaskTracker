@@ -2,7 +2,6 @@ package com.volozhinsky.lifetasktracker.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import com.volozhinsky.lifetasktracker.data.database.TaskListEntity
 import com.volozhinsky.lifetasktracker.data.database.TasksDao
 import com.volozhinsky.lifetasktracker.data.database.TimeLogEntity
 import com.volozhinsky.lifetasktracker.data.mappers.*
@@ -21,6 +20,8 @@ import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.models.AudioDescriptionUI
 import com.volozhinsky.lifetasktracker.ui.models.PhotoDescriptionUI
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDateTime
@@ -40,19 +41,25 @@ class TasksRepositoryImpl @Inject constructor(
     private val timeLogMapper: TimeLogMapper
 ) : LifeTasksRepository, GoogleTasksRepository, DescriptionsRepository {
 
-    override  fun getTaskLists(): LiveData<List<TaskList>> {
-        val itemsLiveData= tasksDao.getTaskLists(queryProperties.account)
-        return Transformations.map(itemsLiveData){ taskList ->
-            taskList.map { taskListMapper.mapEntityToDomain(it) }
+    override suspend fun getTaskLists(): Flow<List<TaskList>> {
+        return withContext(Dispatchers.IO){
+            val itemsLiveData = tasksDao.getTaskLists(queryProperties.account)
+            itemsLiveData.map { taskList ->
+                taskList.map { taskListMapper.mapEntityToDomain(it) }
+            }
         }
-     }
+    }
 
-    override suspend fun getTasks(): LiveData<List<Task>> {
-        val items =
-            tasksDao.getTasks(queryProperties.account, queryProperties.taskListId)
-
+    override fun getTasksFromTaskList(showComplete: Boolean): LiveData<List<Task>> {
+        val items = if (showComplete)
+            tasksDao.getAllTasksFromTaskList(queryProperties.account, queryProperties.taskListId)
+        else tasksDao.getActiveTasksFromTaskList(
+            queryProperties.account,
+            queryProperties.taskListId
+        )
         return Transformations.map(items) { taskListEntity ->
-            taskListEntity.map { taskMapper.mapEntityToDomain(it) }}
+            taskListEntity.map { taskMapper.mapEntityToDomain(it) }
+        }
     }
 
 
@@ -192,8 +199,12 @@ class TasksRepositoryImpl @Inject constructor(
 
     override suspend fun addAudioDescription(audioDescriptionUI: AudioDescriptionUI) {
         withContext(Dispatchers.IO) {
-            tasksDao.addAudioDescription((audioDescriptionMapper.mapUIToEntity(audioDescriptionUI,
-                LocalDateTime.now())))
+            tasksDao.addAudioDescription(
+                (audioDescriptionMapper.mapUIToEntity(
+                    audioDescriptionUI,
+                    LocalDateTime.now()
+                ))
+            )
         }
     }
 
@@ -202,7 +213,7 @@ class TasksRepositoryImpl @Inject constructor(
         startNew(task)
     }
 
-    private suspend fun saveCurrent(){
+    private suspend fun saveCurrent() {
         val currentTaskId = userDataSource.getCurrentTaskId()
         val currentStartDate = LocalDateTime.ofInstant(
             Instant.ofEpochMilli(userDataSource.getCurrentTaskStartDate()),
@@ -223,7 +234,7 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun startNew(task: Task){
+    private fun startNew(task: Task) {
         userDataSource.setCurrentTaskID(task.internalId.toString())
         userDataSource.setCurrentTaskStartDate(
             LocalDateTime.now()
@@ -233,10 +244,10 @@ class TasksRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun getTimeLog(): List<TimeLog> {
-        return withContext(Dispatchers.IO) {
-            tasksDao.getTameLogs(queryProperties.taskListId)
-                .map { timeLogMapper.mapEntityToDomain(it) }
+    override fun getTimeLog(): LiveData<List<TimeLog>> {
+        val timeLogLiveData = tasksDao.getTameLogs(queryProperties.taskListId)
+        return Transformations.map(timeLogLiveData) { timeLog ->
+            timeLog.map { timeLogMapper.mapEntityToDomain(it) }
         }
     }
 
