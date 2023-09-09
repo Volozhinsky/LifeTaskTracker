@@ -17,14 +17,14 @@ interface TasksDao {
             "FROM tasks " +
             "WHERE account = :account "+
             "AND listId= :taskListId ")
-    fun getAllTasksFromTaskList(account: String, taskListId: String): LiveData<List<TaskEntity>>
+    fun getAllTasksFromTaskList(account: String, taskListId: String): Flow<List<TaskEntity>>
 
     @Query("SELECT * " +
             "FROM tasks " +
             "WHERE account = :account "+
             "AND listId= :taskListId "+
             "AND status ")
-    fun getActiveTasksFromTaskList(account: String, taskListId: String): LiveData<List<TaskEntity>>
+    fun getActiveTasksFromTaskList(account: String, taskListId: String): Flow<List<TaskEntity>>
 
     @Query("SELECT * " +
             "FROM tasks " +
@@ -76,7 +76,7 @@ interface TasksDao {
     fun addAudioDescription(audioDescription:AudioDescriptionEntity)
 
     @Query("SELECT * FROM TimeLog WHERE listId = (:taskListId)")
-    fun getTameLogs(taskListId: String): LiveData<List<TimeLogEntity>>
+    fun getTameLogs(taskListId: String): Flow<List<TimeLogEntity>>
 
     @Insert
     fun addTimeLog(timeLog: TimeLogEntity)
