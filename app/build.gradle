@@ -51,7 +51,9 @@ android {
         dataBinding true
     }
     packagingOptions {
-        pickFirst 'META-INF/DEPENDENCIES'
+        resources {
+            pickFirsts += ['META-INF/DEPENDENCIES']
+        }
     }
 }
 
