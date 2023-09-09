@@ -1,7 +1,7 @@
 package com.volozhinsky.lifetasktracker.domain
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
+import androidx.lifecycle.Transformations
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TimeLog
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
@@ -18,7 +18,7 @@ class GetTasksUseCase @Inject constructor(
         return if (showCompleted) {
             calculateLog(tasksLiveData, timeLogs)
         } else {
-            val filteredTasks = tasksLiveData.map{ tasks ->
+            val filteredTasks = Transformations.map(tasksLiveData) { tasks ->
                 tasks.filter { !it.status }
             }
             calculateLog(filteredTasks, timeLogs)
