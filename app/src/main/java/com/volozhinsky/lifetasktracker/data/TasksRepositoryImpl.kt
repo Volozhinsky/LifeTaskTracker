@@ -1,7 +1,5 @@
 package com.volozhinsky.lifetasktracker.data
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import com.volozhinsky.lifetasktracker.data.database.TasksDao
 import com.volozhinsky.lifetasktracker.data.database.TimeLogEntity
 import com.volozhinsky.lifetasktracker.data.mappers.*
@@ -50,7 +48,7 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getTasksFromTaskList(showComplete: Boolean): Flow<List<Task>> {
+    override fun getTasksFromTaskList(showComplete: Boolean): Flow<List<Task>?> {
         val items = if (showComplete)
             tasksDao.getAllTasksFromTaskList(queryProperties.account, queryProperties.taskListId)
         else tasksDao.getActiveTasksFromTaskList(
@@ -58,7 +56,7 @@ class TasksRepositoryImpl @Inject constructor(
             queryProperties.taskListId
         )
         return items.map{ taskListEntity ->
-            taskListEntity.map { taskMapper.mapEntityToDomain(it) }
+            taskListEntity?.map { taskMapper.mapEntityToDomain(it) }
         }
     }
 
@@ -244,10 +242,10 @@ class TasksRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getTimeLog(): Flow<List<TimeLog>> {
-        val timeLogFlow = tasksDao.getTameLogs(queryProperties.taskListId)
+    override fun getTimeLog(): Flow<List<TimeLog>?> {
+        val timeLogFlow = tasksDao.getTimeLogs(queryProperties.taskListId)
         return timeLogFlow.map { timeLog ->
-            timeLog.map { timeLogMapper.mapEntityToDomain(it) }
+            timeLog?.map { timeLogMapper.mapEntityToDomain(it) }
         }
     }
 

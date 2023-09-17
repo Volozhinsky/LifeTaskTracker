@@ -141,7 +141,7 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
                 LinearLayoutManager.VERTICAL,
                 false)
         }
-        tasksListTopViewModel.tasks.observe(viewLifecycleOwner){tasks ->
+        tasksListTopViewModel.tasksLiveData.observe(viewLifecycleOwner){ tasks ->
             recyclerAdapter?.setAdapterData(tasks)
         }
     }

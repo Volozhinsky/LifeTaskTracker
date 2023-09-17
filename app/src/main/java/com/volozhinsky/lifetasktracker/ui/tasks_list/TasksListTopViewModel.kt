@@ -3,7 +3,6 @@ package com.volozhinsky.lifetasktracker.ui.tasks_list
 import android.content.Intent
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.auth.UserRecoverableAuthException
@@ -14,6 +13,7 @@ import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
 import com.volozhinsky.lifetasktracker.domain.StartTimeLogUseCase
+import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
@@ -22,6 +22,9 @@ import com.volozhinsky.lifetasktracker.ui.mappers.TaskMapperUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskListUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import javax.inject.Named
@@ -42,7 +45,9 @@ class TasksListTopViewModel @Inject constructor(
 
     private var _taskListLiveData = MutableLiveData<List<TaskListUI>>()
     val tasksListLiveData get() = _taskListLiveData
-    val tasks: LiveData<List<TaskUI>> get() = updateTasks()
+
+    private var _tasksLiveData = MutableLiveData<List<TaskUI>>()
+    val tasksLiveData: LiveData<List<TaskUI>> get() = _tasksLiveData
 
     private var _loadExIntent = MutableLiveData<Intent>()
     val loadExIntent get() = _loadExIntent
@@ -59,6 +64,7 @@ class TasksListTopViewModel @Inject constructor(
                     this._loadExIntent.value = it
                 }
             }
+
             else -> {
                 _errorliveData.value = R.string.unknownEx
                 _loadingProgressBarLiveData.postValue(false)
@@ -69,6 +75,7 @@ class TasksListTopViewModel @Inject constructor(
         get() = prefs.getShowCompleted()
         set(value) = prefs.setShowCompleted(value)
 
+    private var tasksFlow = getTasksUseCase.getTasks(showCompleeted)
     fun saveUserAccountName(accountName: String) {
         prefs.setAccountName(accountName)
     }
@@ -84,8 +91,9 @@ class TasksListTopViewModel @Inject constructor(
                 _loadingProgressBarLiveData.value = false
             }
             viewModelScope.launch {
-                getTasksListUseCase.getTaskLists().collect{ taskList ->
-                    _taskListLiveData.value = taskList.map { taskListMapperUI.mapDomainToUi(it)
+                getTasksListUseCase.getTaskLists().collect { taskList ->
+                    _taskListLiveData.value = taskList.map {
+                        taskListMapperUI.mapDomainToUi(it)
                     }
                 }
             }
@@ -97,14 +105,21 @@ class TasksListTopViewModel @Inject constructor(
         tasksListLiveData.value?.let { tasklists ->
             _selectedTaskListIndex.value =
                 tasklists.indexOf(tasklists.find { it.id == selectedTaskListId })
+            updateTasks()
         }
     }
 
-    fun updateTasks(): LiveData<List<TaskUI>> {
+    fun updateTasks() {
         val activeTaskId = prefs.getCurrentTaskId()
-        val tasksLiveData = getTasksUseCase.getTasks(showCompleeted)
-        return Transformations.map(tasksLiveData){ tasks ->
-            tasks.map { taskMapperUI.mapDomainToUi(it, it.internalId.toString() == activeTaskId) }
+        tasksFlow = getTasksUseCase.getTasks(showCompleeted)
+        tasksFlow.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+        viewModelScope.launch {
+
+            tasksFlow?.collect() { list ->
+                _tasksLiveData.value = list.map {
+                    taskMapperUI.mapDomainToUi(it, it.internalId.toString() == activeTaskId)
+                }
+            }
         }
     }
 
@@ -115,22 +130,18 @@ class TasksListTopViewModel @Inject constructor(
     fun saveTask(taskUI: TaskUI) {
         viewModelScope.launch {
             repository.saveTask(taskMapperUI.mapUiToDomain(taskUI))
-            updateTasks()
         }
     }
 
     fun startLog(taskUI: TaskUI) {
         viewModelScope.launch {
             startTimeLogUseCase.startLog(taskMapperUI.mapUiToDomain(taskUI))
-            updateTasks()
         }
     }
 
     fun stopLog() {
         viewModelScope.launch {
             startTimeLogUseCase.stopLog()
-            updateTasks()
         }
-
     }
 }

@@ -1,6 +1,5 @@
 package com.volozhinsky.lifetasktracker.data.database
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
@@ -17,14 +16,14 @@ interface TasksDao {
             "FROM tasks " +
             "WHERE account = :account "+
             "AND listId= :taskListId ")
-    fun getAllTasksFromTaskList(account: String, taskListId: String): Flow<List<TaskEntity>>
+    fun getAllTasksFromTaskList(account: String, taskListId: String): Flow<List<TaskEntity>?>
 
     @Query("SELECT * " +
             "FROM tasks " +
             "WHERE account = :account "+
             "AND listId= :taskListId "+
-            "AND status ")
-    fun getActiveTasksFromTaskList(account: String, taskListId: String): Flow<List<TaskEntity>>
+            "AND NOT status ")
+    fun getActiveTasksFromTaskList(account: String, taskListId: String): Flow<List<TaskEntity>?>
 
     @Query("SELECT * " +
             "FROM tasks " +
@@ -76,7 +75,7 @@ interface TasksDao {
     fun addAudioDescription(audioDescription:AudioDescriptionEntity)
 
     @Query("SELECT * FROM TimeLog WHERE listId = (:taskListId)")
-    fun getTameLogs(taskListId: String): Flow<List<TimeLogEntity>>
+    fun getTimeLogs(taskListId: String): Flow<List<TimeLogEntity>?>
 
     @Insert
     fun addTimeLog(timeLog: TimeLogEntity)
