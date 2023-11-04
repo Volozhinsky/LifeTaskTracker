@@ -10,11 +10,11 @@ interface LifeTasksRepository {
 
     suspend fun getTaskLists(): Flow<List<TaskList>>
 
-    fun getTasksFromTaskList(showComplete: Boolean): Flow<List<Task>?>
+    suspend fun getTasksFromTaskList(showComplete: Boolean): Flow<List<Task>>
 
     suspend fun startTimeLog(task: Task)
 
     suspend fun stopTimeLog()
 
-    fun getTimeLog(): Flow<List<TimeLog>?>
+    suspend fun getTimeLog(): Flow<List<TimeLog>>
 }

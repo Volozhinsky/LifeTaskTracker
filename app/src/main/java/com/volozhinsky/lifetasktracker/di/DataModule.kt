@@ -28,7 +28,9 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import java.io.File
 import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.inject.Inject
 import javax.inject.Named
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -83,6 +85,7 @@ object DataModule {
     }
 
     @Provides
+    @Singleton
     fun getTaskDao(@ApplicationContext context: Context): TasksDao{
         val db = Room.databaseBuilder(context, AppDataBase::class.java,"main_database")
             .build()

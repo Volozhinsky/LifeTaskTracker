@@ -117,7 +117,7 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
         binding.taskListsSpinner.onItemSelectedListener = object : OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 tasksListTopViewModel.changeSelectedTaskList(p2)
-                tasksListTopViewModel.updateTasks()
+               // tasksListTopViewModel.updateTasks()
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {}

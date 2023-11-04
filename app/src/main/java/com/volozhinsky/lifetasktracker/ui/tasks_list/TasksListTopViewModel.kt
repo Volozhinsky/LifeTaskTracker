@@ -12,8 +12,7 @@ import javax.inject.Inject
 import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
-import com.volozhinsky.lifetasktracker.domain.StartTimeLogUseCase
-import com.volozhinsky.lifetasktracker.domain.models.Task
+import com.volozhinsky.lifetasktracker.domain.TimeLogUseCase
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
@@ -22,10 +21,10 @@ import com.volozhinsky.lifetasktracker.ui.mappers.TaskMapperUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskListUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.time.format.DateTimeFormatter
 import javax.inject.Named
 
@@ -37,7 +36,7 @@ class TasksListTopViewModel @Inject constructor(
     private val repository: GoogleTasksRepository,
     private val getTasksListUseCase: GetTasksListUseCase,
     private val getTasksUseCase: GetTasksUseCase,
-    private val startTimeLogUseCase: StartTimeLogUseCase,
+    private val timeLogUseCase: TimeLogUseCase,
     private val taskListMapperUI: TaskListMapperUI,
     private val taskMapperUI: TaskMapperUI,
     @Named("ui") val formatter: DateTimeFormatter,
@@ -64,7 +63,15 @@ class TasksListTopViewModel @Inject constructor(
                     this._loadExIntent.value = it
                 }
             }
-
+            is IOException ->{
+                ex.suppressedExceptions.forEach {oneOfEx ->
+                    if (oneOfEx is UserRecoverableAuthException){
+                        oneOfEx.intent?.let {exceptionIntent ->
+                            this._loadExIntent.value = exceptionIntent
+                        }
+                    }
+                }
+            }
             else -> {
                 _errorliveData.value = R.string.unknownEx
                 _loadingProgressBarLiveData.postValue(false)
@@ -75,7 +82,6 @@ class TasksListTopViewModel @Inject constructor(
         get() = prefs.getShowCompleted()
         set(value) = prefs.setShowCompleted(value)
 
-    private var tasksFlow = getTasksUseCase.getTasks(showCompleeted)
     fun saveUserAccountName(accountName: String) {
         prefs.setAccountName(accountName)
     }
@@ -111,11 +117,11 @@ class TasksListTopViewModel @Inject constructor(
 
     fun updateTasks() {
         val activeTaskId = prefs.getCurrentTaskId()
-        tasksFlow = getTasksUseCase.getTasks(showCompleeted)
-        tasksFlow.shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
         viewModelScope.launch {
-
-            tasksFlow?.collect() { list ->
+            val tasksUseCase = withContext(Dispatchers.IO){
+                getTasksUseCase.getTasks(showCompleeted)
+            }
+            tasksUseCase.collect() { list ->
                 _tasksLiveData.value = list.map {
                     taskMapperUI.mapDomainToUi(it, it.internalId.toString() == activeTaskId)
                 }
@@ -135,13 +141,13 @@ class TasksListTopViewModel @Inject constructor(
 
     fun startLog(taskUI: TaskUI) {
         viewModelScope.launch {
-            startTimeLogUseCase.startLog(taskMapperUI.mapUiToDomain(taskUI))
+            timeLogUseCase.startLog(taskMapperUI.mapUiToDomain(taskUI))
         }
     }
 
     fun stopLog() {
         viewModelScope.launch {
-            startTimeLogUseCase.stopLog()
+            timeLogUseCase.stopLog()
         }
     }
 }

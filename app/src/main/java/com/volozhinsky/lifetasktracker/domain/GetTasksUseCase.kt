@@ -5,7 +5,6 @@ import com.volozhinsky.lifetasktracker.domain.models.TimeLog
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
 import com.volozhinsky.lifetasktracker.ui.utils.UtilsLocalDateTime.dateDifference
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
@@ -13,7 +12,7 @@ class GetTasksUseCase @Inject constructor(
     private val taskListRepository: LifeTasksRepository
 ) {
 
-    fun getTasks(showCompleted: Boolean): Flow<List<Task>> {
+    suspend fun getTasks(showCompleted: Boolean): Flow<List<Task>> {
         val tasksLiveFlow = taskListRepository.getTasksFromTaskList(showCompleted)
         val timeLogsFlow = taskListRepository.getTimeLog()
         return tasksLiveFlow.combine(timeLogsFlow) { tasks, logs ->
@@ -22,11 +21,11 @@ class GetTasksUseCase @Inject constructor(
     }
 
     private fun calculateLog(
-        tasks: List<Task>?,
-        timeLog: List<TimeLog>?
+        tasks: List<Task>,
+        timeLog: List<TimeLog>
     ): List<Task> {
-        return tasks?.map { task ->
-            val filteredTimeLog = timeLog?.filter { it.taskInternalId == task.internalId }
+        return tasks.map { task ->
+            val filteredTimeLog = timeLog.filter { it.taskInternalId == task.internalId }
             val milliseconds = calculateMilliseconds(filteredTimeLog)
             Task(
                 id = task.id,

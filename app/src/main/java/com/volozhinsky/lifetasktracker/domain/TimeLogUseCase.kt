@@ -4,7 +4,7 @@ import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
 import javax.inject.Inject
 
-class StartTimeLogUseCase @Inject constructor(
+class TimeLogUseCase @Inject constructor(
     private val taskListRepository: LifeTasksRepository
 ){
 

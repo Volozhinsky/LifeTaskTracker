@@ -40,7 +40,7 @@ class TasksRepositoryImpl @Inject constructor(
 ) : LifeTasksRepository, GoogleTasksRepository, DescriptionsRepository {
 
     override suspend fun getTaskLists(): Flow<List<TaskList>> {
-        return withContext(Dispatchers.IO){
+        return withContext(Dispatchers.IO) {
             val itemsLiveData = tasksDao.getTaskLists(queryProperties.account)
             itemsLiveData.map { taskList ->
                 taskList.map { taskListMapper.mapEntityToDomain(it) }
@@ -48,18 +48,18 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getTasksFromTaskList(showComplete: Boolean): Flow<List<Task>?> {
+    override suspend fun getTasksFromTaskList(showComplete: Boolean): Flow<List<Task>> {
+
         val items = if (showComplete)
             tasksDao.getAllTasksFromTaskList(queryProperties.account, queryProperties.taskListId)
         else tasksDao.getActiveTasksFromTaskList(
             queryProperties.account,
             queryProperties.taskListId
         )
-        return items.map{ taskListEntity ->
-            taskListEntity?.map { taskMapper.mapEntityToDomain(it) }
+        return items.map { taskListEntity ->
+            taskListEntity.map { taskMapper.mapEntityToDomain(it) }
         }
     }
-
 
     override suspend fun synchronizeTaskLists() {
         synchronizeToGoogle()
@@ -129,7 +129,7 @@ class TasksRepositoryImpl @Inject constructor(
         var nextPageResponse: GetTasksResponse?
         return withContext(Dispatchers.IO) {
             val response = googleTasksApiService.getTasks(listId)
-            response?.let { getTaskResponse ->
+            response.let { getTaskResponse ->
                 fullTaskList.addAll(getTaskResponse.items)
                 var nextPageToken: String = getTaskResponse.nextPageToken ?: ""
                 while (nextPageToken.isNotEmpty()) {
@@ -150,7 +150,6 @@ class TasksRepositoryImpl @Inject constructor(
             response?.items ?: throw Exception()
         }
     }
-
 
     override suspend fun getTask(taskInternalId: String): Task {
         return withContext(Dispatchers.IO) {
@@ -242,11 +241,11 @@ class TasksRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getTimeLog(): Flow<List<TimeLog>?> {
-        val timeLogFlow = tasksDao.getTimeLogs(queryProperties.taskListId)
-        return timeLogFlow.map { timeLog ->
-            timeLog?.map { timeLogMapper.mapEntityToDomain(it) }
-        }
+    override suspend fun getTimeLog(): Flow<List<TimeLog>> {
+            val timeLogFlow = tasksDao.getTimeLogs(queryProperties.taskListId)
+             return timeLogFlow.map { timeLog ->
+                timeLog.map { timeLogMapper.mapEntityToDomain(it) }
+            }
     }
 
     override suspend fun stopTimeLog() {
