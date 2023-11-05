@@ -7,4 +7,6 @@ class QueryProperties @Inject constructor(
 ){
     val account get() = userDataSource.getAccountName()
     val taskListId get() = userDataSource.getSelectedTaskListID()
+
+    val showComplete get() = userDataSource.getShowCompleted()
 }

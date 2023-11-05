@@ -3,13 +3,15 @@ package com.volozhinsky.lifetasktracker.data.mappers
 import com.volozhinsky.lifetasktracker.data.database.TaskListEntity
 import com.volozhinsky.lifetasktracker.data.models.TaskListResponse
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
+import com.volozhinsky.lifetasktracker.domain.models.User
 import javax.inject.Inject
 
 class TaskListMapper @Inject constructor() {
-    fun mapEntityToDomain(response: TaskListEntity): TaskList = with(response) {
+    fun mapEntityToDomain(response: TaskListEntity, user: User): TaskList = with(response) {
         TaskList(
             title = title,
-            id = id
+            id = id,
+            user = user
         )
     }
 
@@ -19,6 +21,14 @@ class TaskListMapper @Inject constructor() {
             title = title ?: "",
             selfLink = selfLink ?: "",
             account = account
+        )
+    }
+
+    fun mapResponseToDomain(response: TaskListResponse, user: User): TaskList = with(response) {
+        TaskList(
+            id = id ?: "",
+            title = title ?: "",
+            user = user
         )
     }
 }

@@ -3,6 +3,7 @@ package com.volozhinsky.lifetasktracker.data.mappers
 import com.volozhinsky.lifetasktracker.data.database.TaskEntity
 import com.volozhinsky.lifetasktracker.data.models.TaskResponse
 import com.volozhinsky.lifetasktracker.domain.models.Task
+import com.volozhinsky.lifetasktracker.domain.models.TaskFromWeb
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -23,6 +24,21 @@ class TaskMapper @Inject constructor(@Named("api") private val dateTimeFormatter
             status = status,
             due = due,
             position = position
+        )
+    }
+
+    fun mapResponseToDomain(response: TaskResponse): TaskFromWeb = with(response) {
+        TaskFromWeb(
+            id = id?: "",
+            title = title?: "",
+            selfLink = selfLink?: "",
+            parent =parent?: "",
+            notes = notes?: "",
+            status = status == COMPLETE_STRING,
+            due =due?.let {
+                LocalDateTime.parse(it,dateTimeFormatter)
+            }   ?: LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
+            position = position?.toInt() ?: 0,
         )
     }
 

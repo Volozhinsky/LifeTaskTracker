@@ -1,6 +1,7 @@
 package com.volozhinsky.lifetasktracker.domain
 
 import com.volozhinsky.lifetasktracker.domain.models.Task
+import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.models.TimeLog
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
 import com.volozhinsky.lifetasktracker.ui.utils.UtilsLocalDateTime.dateDifference
@@ -12,8 +13,8 @@ class GetTasksUseCase @Inject constructor(
     private val taskListRepository: LifeTasksRepository
 ) {
 
-    suspend fun getTasks(showCompleted: Boolean): Flow<List<Task>> {
-        val tasksLiveFlow = taskListRepository.getTasksFromTaskList(showCompleted)
+    suspend fun getTasks(showCompleted: Boolean,taskList: TaskList): Flow<List<Task>> {
+        val tasksLiveFlow = taskListRepository.getTasksFromTaskList(showCompleted,taskList)
         val timeLogsFlow = taskListRepository.getTimeLog()
         return tasksLiveFlow.combine(timeLogsFlow) { tasks, logs ->
             calculateLog(tasks, logs)

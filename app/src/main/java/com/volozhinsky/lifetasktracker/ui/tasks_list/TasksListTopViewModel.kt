@@ -13,6 +13,7 @@ import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
 import com.volozhinsky.lifetasktracker.domain.TimeLogUseCase
+import com.volozhinsky.lifetasktracker.domain.maincontrol.LifeTaskAppControl
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
@@ -34,12 +35,11 @@ class TasksListTopViewModel @Inject constructor(
     val chooseAccountContract: ChooseAccountContract,
     val userRecoverableAuthContract: UserRecoverableAuthContract,
     private val repository: GoogleTasksRepository,
-    private val getTasksListUseCase: GetTasksListUseCase,
-    private val getTasksUseCase: GetTasksUseCase,
     private val timeLogUseCase: TimeLogUseCase,
     private val taskListMapperUI: TaskListMapperUI,
     private val taskMapperUI: TaskMapperUI,
     @Named("ui") val formatter: DateTimeFormatter,
+    private val lifeTaskAppControl: LifeTaskAppControl
 ) : ViewModel() {
 
     private var _taskListLiveData = MutableLiveData<List<TaskListUI>>()
@@ -97,7 +97,7 @@ class TasksListTopViewModel @Inject constructor(
                 _loadingProgressBarLiveData.value = false
             }
             viewModelScope.launch {
-                getTasksListUseCase.getTaskLists().collect { taskList ->
+                lifeTaskAppControl.getTaskListsFlow().collect { taskList ->
                     _taskListLiveData.value = taskList.map {
                         taskListMapperUI.mapDomainToUi(it)
                     }
@@ -119,7 +119,7 @@ class TasksListTopViewModel @Inject constructor(
         val activeTaskId = prefs.getCurrentTaskId()
         viewModelScope.launch {
             val tasksUseCase = withContext(Dispatchers.IO){
-                getTasksUseCase.getTasks(showCompleeted)
+                lifeTaskAppControl.getTasksFlow()
             }
             tasksUseCase.collect() { list ->
                 _tasksLiveData.value = list.map {

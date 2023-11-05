@@ -12,6 +12,7 @@ import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.models.TimeLog
+import com.volozhinsky.lifetasktracker.domain.models.User
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
 import com.volozhinsky.lifetasktracker.ui.DescriptionsRepository
 import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
@@ -39,26 +40,42 @@ class TasksRepositoryImpl @Inject constructor(
     private val timeLogMapper: TimeLogMapper
 ) : LifeTasksRepository, GoogleTasksRepository, DescriptionsRepository {
 
-    override suspend fun getTaskLists(): Flow<List<TaskList>> {
+    override suspend fun getTaskLists(user: User): Flow<List<TaskList>> {
         return withContext(Dispatchers.IO) {
-            val itemsLiveData = tasksDao.getTaskLists(queryProperties.account)
+            val itemsLiveData = tasksDao.getTaskLists(user.accountName)
             itemsLiveData.map { taskList ->
-                taskList.map { taskListMapper.mapEntityToDomain(it) }
+                taskList.map { taskListMapper.mapEntityToDomain(it,user) }
             }
         }
     }
 
-    override suspend fun getTasksFromTaskList(showComplete: Boolean): Flow<List<Task>> {
+    override suspend fun getTasksFromTaskList(
+        showComplete: Boolean,
+        taskList: TaskList
+    ): Flow<List<Task>> {
 
         val items = if (showComplete)
-            tasksDao.getAllTasksFromTaskList(queryProperties.account, queryProperties.taskListId)
+            tasksDao.getAllTasksFromTaskList(queryProperties.account, taskList.id)
         else tasksDao.getActiveTasksFromTaskList(
             queryProperties.account,
-            queryProperties.taskListId
+            taskList.id
         )
         return items.map { taskListEntity ->
             taskListEntity.map { taskMapper.mapEntityToDomain(it) }
         }
+    }
+
+    override suspend fun getCurrentUser(): User {
+        return User(queryProperties.account)
+    }
+
+    override fun getShowCompleteFlag(): Boolean {
+        return queryProperties.showComplete
+    }
+
+    override fun getCurrentTaskList(user: User): TaskList {
+        return TaskList("todo",queryProperties.taskListId,user)
+        //TODO here must be real tasklist
     }
 
     override suspend fun synchronizeTaskLists() {
@@ -242,10 +259,10 @@ class TasksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTimeLog(): Flow<List<TimeLog>> {
-            val timeLogFlow = tasksDao.getTimeLogs(queryProperties.taskListId)
-             return timeLogFlow.map { timeLog ->
-                timeLog.map { timeLogMapper.mapEntityToDomain(it) }
-            }
+        val timeLogFlow = tasksDao.getTimeLogs(queryProperties.taskListId)
+        return timeLogFlow.map { timeLog ->
+            timeLog.map { timeLogMapper.mapEntityToDomain(it) }
+        }
     }
 
     override suspend fun stopTimeLog() {
