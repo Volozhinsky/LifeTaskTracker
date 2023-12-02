@@ -45,6 +45,12 @@ interface TasksDao {
             "AND NOT sinc  ")
     fun getTasksUnsinc(account: String): List<TaskEntity>
 
+    @Query("SELECT * " +
+            "FROM tasks " +
+            "WHERE account = :account " +
+            "AND NOT sinc  ")
+    fun getTasksUnsincFlow(account: String): Flow<List<TaskEntity>>
+
     @Insert (onConflict = OnConflictStrategy.REPLACE)
     fun insertAllIntoTaskLists(vararg taskListEntity: TaskListEntity)
 

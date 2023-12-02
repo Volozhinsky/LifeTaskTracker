@@ -25,7 +25,4 @@ class LifeTaskAppControl @Inject constructor(
         return getTasksUseCase.getTasks(showComplete,currentTaskList)
     }
 
-    suspend fun synchronizeRepositories(){
-
-    }
 }

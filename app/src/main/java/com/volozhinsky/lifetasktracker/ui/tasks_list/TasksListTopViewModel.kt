@@ -12,6 +12,7 @@ import javax.inject.Inject
 import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
+import com.volozhinsky.lifetasktracker.domain.SynchronizeTasksUseCase
 import com.volozhinsky.lifetasktracker.domain.TimeLogUseCase
 import com.volozhinsky.lifetasktracker.domain.maincontrol.LifeTaskAppControl
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
@@ -39,7 +40,8 @@ class TasksListTopViewModel @Inject constructor(
     private val taskListMapperUI: TaskListMapperUI,
     private val taskMapperUI: TaskMapperUI,
     @Named("ui") val formatter: DateTimeFormatter,
-    private val lifeTaskAppControl: LifeTaskAppControl
+    private val lifeTaskAppControl: LifeTaskAppControl,
+    private val synchronizeTasksUseCase: SynchronizeTasksUseCase
 ) : ViewModel() {
 
     private var _taskListLiveData = MutableLiveData<List<TaskListUI>>()
@@ -92,7 +94,7 @@ class TasksListTopViewModel @Inject constructor(
         if (prefs.getAccountName().isNotEmpty()) {
             viewModelScope.launch(exceptionHandler) {
                 _loadingProgressBarLiveData.value = true
-                repository.synchronizeTaskLists()
+                synchronizeTasksUseCase.synchronizeTaskLists()
 
                 _loadingProgressBarLiveData.value = false
             }
