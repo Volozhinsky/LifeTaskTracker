@@ -10,13 +10,10 @@ import com.volozhinsky.lifetasktracker.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
-import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
-import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
 import com.volozhinsky.lifetasktracker.domain.SynchronizeTasksUseCase
 import com.volozhinsky.lifetasktracker.domain.TimeLogUseCase
 import com.volozhinsky.lifetasktracker.domain.maincontrol.LifeTaskAppControl
 import com.volozhinsky.lifetasktracker.ui.ChooseAccountContract
-import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.UserRecoverableAuthContract
 import com.volozhinsky.lifetasktracker.ui.mappers.TaskListMapperUI
 import com.volozhinsky.lifetasktracker.ui.mappers.TaskMapperUI
@@ -35,7 +32,6 @@ class TasksListTopViewModel @Inject constructor(
     private val prefs: UserDataSource,
     val chooseAccountContract: ChooseAccountContract,
     val userRecoverableAuthContract: UserRecoverableAuthContract,
-    private val repository: GoogleTasksRepository,
     private val timeLogUseCase: TimeLogUseCase,
     private val taskListMapperUI: TaskListMapperUI,
     private val taskMapperUI: TaskMapperUI,
@@ -137,7 +133,7 @@ class TasksListTopViewModel @Inject constructor(
 
     fun saveTask(taskUI: TaskUI) {
         viewModelScope.launch {
-            repository.saveTask(taskMapperUI.mapUiToDomain(taskUI))
+            lifeTaskAppControl.saveTask(taskMapperUI.mapUiToDomain(taskUI))
         }
     }
 

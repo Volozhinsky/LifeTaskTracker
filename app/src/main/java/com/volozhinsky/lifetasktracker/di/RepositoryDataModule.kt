@@ -2,8 +2,6 @@ package com.volozhinsky.lifetasktracker.di
 
 import com.volozhinsky.lifetasktracker.data.TasksRepositoryImpl
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
-import com.volozhinsky.lifetasktracker.ui.DescriptionsRepository
-import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -15,10 +13,4 @@ abstract class RepositoryDataModule {
 
     @Binds
     abstract fun getTasksRepository(impl: TasksRepositoryImpl): LifeTasksRepository
-
-    @Binds
-    abstract fun getGoogleTasksRepository(impl: TasksRepositoryImpl): GoogleTasksRepository
-
-    @Binds
-    abstract fun getDescriptionsRepository(impl: TasksRepositoryImpl): DescriptionsRepository
 }

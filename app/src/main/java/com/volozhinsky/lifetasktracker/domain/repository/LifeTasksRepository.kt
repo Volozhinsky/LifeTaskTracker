@@ -5,7 +5,10 @@ import com.volozhinsky.lifetasktracker.domain.models.TaskFromWeb
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.models.TimeLog
 import com.volozhinsky.lifetasktracker.domain.models.User
+import com.volozhinsky.lifetasktracker.ui.models.AudioDescriptionUI
+import com.volozhinsky.lifetasktracker.ui.models.PhotoDescriptionUI
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 interface LifeTasksRepository {
 
@@ -28,4 +31,16 @@ interface LifeTasksRepository {
     fun getShowCompleteFlag(): Boolean
 
     fun getCurrentTaskList(user: User):TaskList
+
+    suspend fun getPhotoDescriptions(taskInternalId: UUID): List<PhotoDescriptionUI>
+
+    suspend fun getAudioDescriptions(taskInternalId: UUID): List<AudioDescriptionUI>
+
+    suspend fun addPhotoDescription(photoDescription: PhotoDescriptionUI)
+
+    suspend fun addAudioDescription(audioDescriptionUI: AudioDescriptionUI)
+
+    suspend fun getTask(taskInternalId: String):Task
+
+    suspend fun saveTask(task: Task)
 }

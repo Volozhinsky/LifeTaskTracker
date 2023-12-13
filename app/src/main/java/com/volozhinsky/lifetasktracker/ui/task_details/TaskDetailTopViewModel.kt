@@ -7,16 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.volozhinsky.lifetasktracker.data.pref.QueryProperties
 import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
-import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
+import com.volozhinsky.lifetasktracker.domain.maincontrol.LifeTaskAppControl
 import com.volozhinsky.lifetasktracker.domain.models.Task
-import com.volozhinsky.lifetasktracker.ui.DescriptionsRepository
-import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.mappers.TaskMapperUI
 import com.volozhinsky.lifetasktracker.ui.models.AudioDescriptionUI
 import com.volozhinsky.lifetasktracker.ui.models.PhotoDescriptionUI
-import com.volozhinsky.lifetasktracker.ui.models.TaskListUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -30,9 +26,8 @@ import javax.inject.Named
 @HiltViewModel
 class TaskDetailTopViewModel @Inject constructor(
     private val taskMapperUI: TaskMapperUI,
-    private val repository: GoogleTasksRepository,
     @Named("ui") val formatter: DateTimeFormatter,
-    private val descriptionsRepository: DescriptionsRepository,
+    private val lifeTaskAppControl: LifeTaskAppControl,
     @Named("filesDir") private val filesDir: File,
     private val prefs: UserDataSource
 ) : ViewModel() {
@@ -50,11 +45,11 @@ class TaskDetailTopViewModel @Inject constructor(
     val taskLiveDataObserver = Observer<TaskUI>() { task ->
         viewModelScope.launch {
             _photoDescriptionList.value =
-                descriptionsRepository.getPhotoDescriptions(task.internalId)
+                lifeTaskAppControl.getPhotoDescriptions(task.internalId)
         }
         viewModelScope.launch {
             _audioDescriptionList.value =
-                descriptionsRepository.getAudioDescriptions(task.internalId)
+                lifeTaskAppControl.getAudioDescriptions(task.internalId)
         }
     }
     private var audioRecorder: MediaRecorder? = null
@@ -64,7 +59,7 @@ class TaskDetailTopViewModel @Inject constructor(
         val activeTaskId = prefs.getCurrentTaskId()
         if (taskInternalId.isNotEmpty()) {
             viewModelScope.launch {
-                val task = repository.getTask(taskInternalId)
+                val task = lifeTaskAppControl.getTask(taskInternalId)
                 _taskLiveData.value =
                     taskMapperUI.mapDomainToUi(task, activeTaskId == task.internalId.toString())
             }
@@ -78,7 +73,7 @@ class TaskDetailTopViewModel @Inject constructor(
     fun saveTask() {
         taskLiveData.value?.let { taskUI ->
             viewModelScope.launch {
-                repository.saveTask(taskMapperUI.mapUiToDomain(taskUI))
+                lifeTaskAppControl.saveTask(taskMapperUI.mapUiToDomain(taskUI))
             }
         }
     }
@@ -106,7 +101,7 @@ class TaskDetailTopViewModel @Inject constructor(
 
     fun addNewPhotoDescription(photoDescriptionUI: PhotoDescriptionUI) {
         viewModelScope.launch {
-            descriptionsRepository.addPhotoDescription(photoDescriptionUI)
+            lifeTaskAppControl.addPhotoDescription(photoDescriptionUI)
         }
     }
 
@@ -166,7 +161,7 @@ class TaskDetailTopViewModel @Inject constructor(
     fun addNewAudioDescription() {
         newAudioDescriptionUI?.let {
             viewModelScope.launch {
-                descriptionsRepository.addAudioDescription(it)
+                lifeTaskAppControl.addAudioDescription(it)
             }
         }
     }

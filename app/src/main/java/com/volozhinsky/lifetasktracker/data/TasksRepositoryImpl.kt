@@ -3,20 +3,14 @@ package com.volozhinsky.lifetasktracker.data
 import com.volozhinsky.lifetasktracker.data.database.TasksDao
 import com.volozhinsky.lifetasktracker.data.database.TimeLogEntity
 import com.volozhinsky.lifetasktracker.data.mappers.*
-import com.volozhinsky.lifetasktracker.data.models.GetTasksResponse
-import com.volozhinsky.lifetasktracker.data.models.TaskListResponse
-import com.volozhinsky.lifetasktracker.data.models.TaskResponse
 import com.volozhinsky.lifetasktracker.data.network.GoogleTasksApiService
 import com.volozhinsky.lifetasktracker.data.pref.QueryProperties
 import com.volozhinsky.lifetasktracker.data.pref.UserDataSource
 import com.volozhinsky.lifetasktracker.domain.models.Task
-import com.volozhinsky.lifetasktracker.domain.models.TaskFromWeb
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.models.TimeLog
 import com.volozhinsky.lifetasktracker.domain.models.User
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
-import com.volozhinsky.lifetasktracker.ui.DescriptionsRepository
-import com.volozhinsky.lifetasktracker.ui.GoogleTasksRepository
 import com.volozhinsky.lifetasktracker.ui.models.AudioDescriptionUI
 import com.volozhinsky.lifetasktracker.ui.models.PhotoDescriptionUI
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +33,7 @@ class TasksRepositoryImpl @Inject constructor(
     private val audioDescriptionMapper: AudioDescriptionMapper,
     private val userDataSource: UserDataSource,
     private val timeLogMapper: TimeLogMapper
-) : LifeTasksRepository, DescriptionsRepository {
+) : LifeTasksRepository {
 
     override suspend fun getTaskLists(user: User): Flow<List<TaskList>> {
         return withContext(Dispatchers.IO) {
@@ -90,7 +84,7 @@ class TasksRepositoryImpl @Inject constructor(
         tasksDao.insertAllIntoTask(*tasksEntity.toTypedArray())
     }
 
-    suspend fun getTask(taskInternalId: String): Task {
+    override suspend fun getTask(taskInternalId: String): Task {
         return withContext(Dispatchers.IO) {
             val task = tasksDao.getTasksByInternalID(
                 queryProperties.account,
@@ -101,7 +95,7 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    suspend fun saveTask(task: Task) {
+    override suspend fun saveTask(task: Task) {
         withContext(Dispatchers.IO) {
             tasksDao.insertAllIntoTask(
                 taskMapper.mapDomainToEntity(
