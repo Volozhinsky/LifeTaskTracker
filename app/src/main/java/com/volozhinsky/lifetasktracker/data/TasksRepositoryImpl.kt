@@ -24,7 +24,6 @@ import java.util.*
 import javax.inject.Inject
 
 class TasksRepositoryImpl @Inject constructor(
-    private val googleTasksApiService: GoogleTasksApiService,
     private val taskListMapper: TaskListMapper,
     private val taskMapper: TaskMapper,
     private val tasksDao: TasksDao,

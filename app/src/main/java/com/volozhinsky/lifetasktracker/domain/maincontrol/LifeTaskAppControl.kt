@@ -2,6 +2,8 @@ package com.volozhinsky.lifetasktracker.domain.maincontrol
 
 import com.volozhinsky.lifetasktracker.domain.GetTasksListUseCase
 import com.volozhinsky.lifetasktracker.domain.GetTasksUseCase
+import com.volozhinsky.lifetasktracker.domain.SynchronizeTasksUseCase
+import com.volozhinsky.lifetasktracker.domain.TimeLogUseCase
 import com.volozhinsky.lifetasktracker.domain.models.Task
 import com.volozhinsky.lifetasktracker.domain.models.TaskList
 import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
@@ -12,10 +14,11 @@ import java.util.UUID
 import javax.inject.Inject
 
 class LifeTaskAppControl @Inject constructor(
-    private val getTasksListUseCase: GetTasksListUseCase,
     private val getTasksUseCase: GetTasksUseCase,
-    private val lifeTasksRepository: LifeTasksRepository
-) {
+    private val lifeTasksRepository: LifeTasksRepository,
+    private val synchronizeTasksUseCase: SynchronizeTasksUseCase,
+    private val timeLogUseCase: TimeLogUseCase
+    ) {
 
     suspend fun getTaskListsFlow(): Flow<List<TaskList>> {
         val currentUser = lifeTasksRepository.getCurrentUser()
@@ -39,4 +42,10 @@ class LifeTaskAppControl @Inject constructor(
 
     suspend fun getTask(taskInternalId: String):Task = lifeTasksRepository.getTask(taskInternalId)
     suspend fun saveTask(task: Task) = lifeTasksRepository.saveTask(task)
+
+    suspend fun startLog(task: Task) = timeLogUseCase.startLog(task)
+
+    suspend fun stopLog() = timeLogUseCase.stopLog()
+
+    suspend fun synchronizeTaskLists() = synchronizeTasksUseCase.synchronizeTaskLists()
 }

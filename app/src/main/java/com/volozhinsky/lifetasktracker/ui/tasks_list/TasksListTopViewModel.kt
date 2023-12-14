@@ -32,12 +32,10 @@ class TasksListTopViewModel @Inject constructor(
     private val prefs: UserDataSource,
     val chooseAccountContract: ChooseAccountContract,
     val userRecoverableAuthContract: UserRecoverableAuthContract,
-    private val timeLogUseCase: TimeLogUseCase,
     private val taskListMapperUI: TaskListMapperUI,
     private val taskMapperUI: TaskMapperUI,
     @Named("ui") val formatter: DateTimeFormatter,
-    private val lifeTaskAppControl: LifeTaskAppControl,
-    private val synchronizeTasksUseCase: SynchronizeTasksUseCase
+    private val lifeTaskAppControl: LifeTaskAppControl
 ) : ViewModel() {
 
     private var _taskListLiveData = MutableLiveData<List<TaskListUI>>()
@@ -90,7 +88,7 @@ class TasksListTopViewModel @Inject constructor(
         if (prefs.getAccountName().isNotEmpty()) {
             viewModelScope.launch(exceptionHandler) {
                 _loadingProgressBarLiveData.value = true
-                synchronizeTasksUseCase.synchronizeTaskLists()
+                lifeTaskAppControl.synchronizeTaskLists()
 
                 _loadingProgressBarLiveData.value = false
             }
@@ -139,13 +137,13 @@ class TasksListTopViewModel @Inject constructor(
 
     fun startLog(taskUI: TaskUI) {
         viewModelScope.launch {
-            timeLogUseCase.startLog(taskMapperUI.mapUiToDomain(taskUI))
+            lifeTaskAppControl.startLog(taskMapperUI.mapUiToDomain(taskUI))
         }
     }
 
     fun stopLog() {
         viewModelScope.launch {
-            timeLogUseCase.stopLog()
+            lifeTaskAppControl.stopLog()
         }
     }
 }
