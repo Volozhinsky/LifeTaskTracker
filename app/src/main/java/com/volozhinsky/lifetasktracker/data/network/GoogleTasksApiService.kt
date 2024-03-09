@@ -19,10 +19,10 @@ interface GoogleTasksApiService {
     suspend fun getList(): GetTaskListResponse
 
     @GET("lists/{tasklist}/tasks/")
-    suspend fun getTasks(@Path( "tasklist" )tasklist: String): GetTasksResponse
+    suspend fun getTasks(@Path( "tasklist" )tasklist: String,@Query("showHidden") showHidden:Boolean): GetTasksResponse
 
     @GET("lists/{tasklist}/tasks/")
-    suspend fun getTasksNextPage(@Path( "tasklist" ) tasklist: String, @Query("pageToken") nextPageToken: String): GetTasksResponse
+    suspend fun getTasksNextPage(@Path( "tasklist" ) tasklist: String, @Query("pageToken") nextPageToken: String,@Query("showHidden") showHidden:Boolean): GetTasksResponse
 
     @POST("lists/{tasklist}/tasks/")
     suspend fun insertTask(@Path( "tasklist") tasklist: String, @Body task: TaskResponse):TaskResponse

@@ -7,6 +7,7 @@ import com.volozhinsky.lifetasktracker.domain.repository.LifeTasksRepository
 import com.volozhinsky.lifetasktracker.ui.utils.UtilsLocalDateTime.dateDifference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.combineLatest
 import javax.inject.Inject
 
 class GetTasksUseCase @Inject constructor(
@@ -16,9 +17,18 @@ class GetTasksUseCase @Inject constructor(
     suspend fun getTasks(showCompleted: Boolean,taskList: TaskList): Flow<List<Task>> {
         val tasksLiveFlow = taskListRepository.getTasksFromTaskList(showCompleted,taskList)
         val timeLogsFlow = taskListRepository.getTimeLog()
-        return tasksLiveFlow.combine(timeLogsFlow) { tasks, logs ->
+        val activeTaskIdFlow = taskListRepository.getActiveTaskIdFlow()
+        val taskAndTimeLogFlow = tasksLiveFlow.combine(timeLogsFlow) { tasks, logs ->
             calculateLog(tasks, logs)
         }
+        val resultFlow =  taskAndTimeLogFlow.combine(activeTaskIdFlow){tasks,activeTasksLog ->
+            tasks.map {task ->
+
+                task.activeTask = activeTasksLog.find { it.taskInternalId == task.internalId } != null
+            }
+            tasks
+        }
+        return resultFlow
     }
 
     private fun calculateLog(
@@ -40,7 +50,8 @@ class GetTasksUseCase @Inject constructor(
                 position = task.position,
                 logDays = calculateDays(milliseconds),
                 logHours = calculateHours(milliseconds),
-                logMinutes = calculateMinutes(milliseconds)
+                logMinutes = calculateMinutes(milliseconds),
+                activeTask = false
             )
         }.orEmpty()
     }

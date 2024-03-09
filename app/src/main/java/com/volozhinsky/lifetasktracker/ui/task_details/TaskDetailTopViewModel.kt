@@ -61,12 +61,12 @@ class TaskDetailTopViewModel @Inject constructor(
             viewModelScope.launch {
                 val task = lifeTaskAppControl.getTask(taskInternalId)
                 _taskLiveData.value =
-                    taskMapperUI.mapDomainToUi(task, activeTaskId == task.internalId.toString())
+                    taskMapperUI.mapDomainToUi(task)
             }
         } else {
             val task = Task()
             _taskLiveData.value =
-                taskMapperUI.mapDomainToUi(task, activeTaskId == task.internalId.toString())
+                taskMapperUI.mapDomainToUi(task)
         }
     }
 

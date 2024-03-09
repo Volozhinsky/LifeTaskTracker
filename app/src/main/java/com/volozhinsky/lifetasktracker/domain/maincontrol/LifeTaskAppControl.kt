@@ -45,7 +45,7 @@ class LifeTaskAppControl @Inject constructor(
 
     suspend fun startLog(task: Task) = timeLogUseCase.startLog(task)
 
-    suspend fun stopLog() = timeLogUseCase.stopLog()
+    suspend fun stopLog(task: Task) = timeLogUseCase.stopLog(task)
 
     suspend fun synchronizeTaskLists() = synchronizeTasksUseCase.synchronizeTaskLists()
 }

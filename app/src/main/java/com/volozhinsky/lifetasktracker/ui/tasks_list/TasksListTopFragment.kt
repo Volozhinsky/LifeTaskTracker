@@ -117,7 +117,6 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
         binding.taskListsSpinner.onItemSelectedListener = object : OnItemSelectedListener{
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 tasksListTopViewModel.changeSelectedTaskList(p2)
-               // tasksListTopViewModel.updateTasks()
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {}
@@ -126,7 +125,6 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
             adapter.clear()
             adapter.addAll(taskLists.map { it.title })
             adapter.notifyDataSetChanged()
-            tasksListTopViewModel.updateSelectedList()
         }
         tasksListTopViewModel.selectedTaskListIndex.observe(viewLifecycleOwner){
             binding.taskListsSpinner.setSelection(it)
@@ -151,10 +149,11 @@ class TasksListTopFragment() : Fragment(),TaskListVHListner {
     }
 
     override fun onStartTiming(task: TaskUI,active: Boolean) {
-        if (active){
+        task.activeTask = active
+        if (task.activeTask){
             tasksListTopViewModel.startLog(task)
         }else {
-            tasksListTopViewModel.stopLog()
+            tasksListTopViewModel.stopLog(task)
         }
     }
 

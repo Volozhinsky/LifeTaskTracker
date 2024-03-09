@@ -80,13 +80,17 @@ class SynchronizationImpl @Inject constructor(
                     taskListsEntity.id,
                     tasksResponse.map { it.id ?: "" })
                 val tasksEntity = tasksResponse.map { tasksResponse ->
-                    taskMapper.mapResponseToEntity(
+                    val taskF = presentTasks.find { it.id == tasksResponse.id }
+                    val intID= taskF?.internalId ?: UUID.randomUUID()
+                    val acc = queryProperties.account
+                    val listenId = taskListsEntity.id
+                    val res = taskMapper.mapResponseToEntity(
                         tasksResponse,
-                        queryProperties.account,
-                        taskListsEntity.id,
-                        presentTasks.find { it.id == tasksResponse.id }?.internalId
-                            ?: UUID.randomUUID()
+                        acc,
+                        listenId,
+                        intID
                     )
+                    res
                 }
                 tasksDao.insertAllIntoTask(*tasksEntity.toTypedArray())
             }
@@ -97,7 +101,7 @@ class SynchronizationImpl @Inject constructor(
     private suspend fun getTaskListsFromApi(): List<TaskListResponse> {
         return withContext(Dispatchers.IO) {
             val response = googleTasksApiService.getList()
-            response?.items ?: throw Exception()
+            response.items?: throw Exception()
         }
     }
 
@@ -105,12 +109,13 @@ class SynchronizationImpl @Inject constructor(
         val fullTaskList = mutableListOf<TaskResponse>()
         var nextPageResponse: GetTasksResponse?
         return withContext(Dispatchers.IO) {
-            val response = googleTasksApiService.getTasks(listId)
+            val response = googleTasksApiService.getTasks(listId,true)
             response.let { getTaskResponse ->
                 fullTaskList.addAll(getTaskResponse.items)
                 var nextPageToken: String = getTaskResponse.nextPageToken ?: ""
                 while (nextPageToken.isNotEmpty()) {
-                    nextPageResponse = googleTasksApiService.getTasksNextPage(listId, nextPageToken)
+
+                    nextPageResponse = googleTasksApiService.getTasksNextPage(listId, nextPageToken,true)
                     nextPageToken = nextPageResponse?.nextPageToken.orEmpty()
                     nextPageResponse?.let {
                         fullTaskList.addAll(it.items)

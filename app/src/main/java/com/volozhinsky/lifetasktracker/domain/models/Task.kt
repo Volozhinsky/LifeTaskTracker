@@ -11,11 +11,12 @@ class Task(
     val title: String = "",
     val selfLink: String = "",
     val parent: String = "",
-    val position: Int = 0,
+    val position: String = "",
     val notes: String = "",
     val status: Boolean = false,
     val due: LocalDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
     val logDays: Int =0,
     val logHours: Int = 0,
-    val logMinutes: Int = 0
+    val logMinutes: Int = 0,
+    var activeTask: Boolean = false
 )

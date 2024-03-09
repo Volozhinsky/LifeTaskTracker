@@ -5,7 +5,7 @@ import androidx.room.Entity
 import java.time.LocalDateTime
 import java.util.*
 
-@Entity(tableName = "TimeLog", primaryKeys = ["id","internalId"])
+@Entity(tableName = "TimeLog", primaryKeys = ["id","internalId","startDate"])
 data class TimeLogEntity(
     @ColumnInfo("id") val id: String,
     @ColumnInfo("internalId") val internalId: UUID,

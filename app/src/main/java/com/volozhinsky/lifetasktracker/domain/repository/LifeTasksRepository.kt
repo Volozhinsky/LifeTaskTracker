@@ -8,6 +8,7 @@ import com.volozhinsky.lifetasktracker.domain.models.User
 import com.volozhinsky.lifetasktracker.ui.models.AudioDescriptionUI
 import com.volozhinsky.lifetasktracker.ui.models.PhotoDescriptionUI
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import java.util.UUID
 
 interface LifeTasksRepository {
@@ -22,7 +23,7 @@ interface LifeTasksRepository {
 
     suspend fun startTimeLog(task: Task)
 
-    suspend fun stopTimeLog()
+    suspend fun stopTimeLog(task: Task)
 
     suspend fun getTimeLog(): Flow<List<TimeLog>>
 
@@ -43,4 +44,6 @@ interface LifeTasksRepository {
     suspend fun getTask(taskInternalId: String):Task
 
     suspend fun saveTask(task: Task)
+
+    suspend fun getActiveTaskIdFlow(): Flow<List<TimeLog>>
 }

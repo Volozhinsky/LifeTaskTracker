@@ -21,6 +21,7 @@ import com.volozhinsky.lifetasktracker.ui.models.TaskListUI
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -94,39 +95,38 @@ class TasksListTopViewModel @Inject constructor(
             }
             viewModelScope.launch {
                 lifeTaskAppControl.getTaskListsFlow().collect { taskList ->
-                    _taskListLiveData.value = taskList.map {
+                    val tasklists = taskList.map {
                         taskListMapperUI.mapDomainToUi(it)
                     }
+                    _taskListLiveData.value = tasklists
+                    val selectedTaskListId = prefs.getSelectedTaskListID()
+                    _selectedTaskListIndex.value = tasklists.indexOf(tasklists.find { it.id == selectedTaskListId })
+                    updateTasks()
                 }
             }
         }
     }
 
-    fun updateSelectedList() {
-        val selectedTaskListId = prefs.getSelectedTaskListID()
-        tasksListLiveData.value?.let { tasklists ->
-            _selectedTaskListIndex.value =
-                tasklists.indexOf(tasklists.find { it.id == selectedTaskListId })
-            updateTasks()
-        }
-    }
 
     fun updateTasks() {
-        val activeTaskId = prefs.getCurrentTaskId()
         viewModelScope.launch {
             val tasksUseCase = withContext(Dispatchers.IO){
                 lifeTaskAppControl.getTasksFlow()
             }
-            tasksUseCase.collect() { list ->
+            tasksUseCase.collectLatest { list ->
                 _tasksLiveData.value = list.map {
-                    taskMapperUI.mapDomainToUi(it, it.internalId.toString() == activeTaskId)
+                    taskMapperUI.mapDomainToUi(it)
                 }
             }
         }
     }
 
     fun changeSelectedTaskList(listPos: Int) {
-        tasksListLiveData.value?.get(listPos)?.let { prefs.setSelectedTaskListID(it.id) }
+        tasksListLiveData.value?.get(listPos)?.let {
+            prefs.setSelectedTaskListID(it.id)
+            updateTasks()
+        }
+
     }
 
     fun saveTask(taskUI: TaskUI) {
@@ -141,9 +141,9 @@ class TasksListTopViewModel @Inject constructor(
         }
     }
 
-    fun stopLog() {
+    fun stopLog(taskUI: TaskUI) {
         viewModelScope.launch {
-            lifeTaskAppControl.stopLog()
+            lifeTaskAppControl.stopLog(taskMapperUI.mapUiToDomain(taskUI))
         }
     }
 }

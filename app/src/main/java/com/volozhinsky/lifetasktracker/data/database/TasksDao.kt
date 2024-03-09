@@ -2,6 +2,7 @@ package com.volozhinsky.lifetasktracker.data.database
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Dao
@@ -83,6 +84,17 @@ interface TasksDao {
     @Query("SELECT * FROM TimeLog WHERE listId = (:taskListId)")
     fun getTimeLogs(taskListId: String): Flow<List<TimeLogEntity>>
 
-    @Insert
+    @Query("SELECT * FROM TimeLog AS TimeLog " +
+            "JOIN (SELECT MAX(startDate) AS startDate FROM TimeLog WHERE internalId = (:taskInternalId)) AS MaxStart " +
+            "ON MaxStart.startDate = TimeLog.startDate " +
+            "WHERE TimeLog.internalId = (:taskInternalId)")
+    fun getLastStartTimeFromTimeLogs(taskInternalId: String): List<TimeLogEntity>
+
+    @Query("SELECT * FROM TimeLog WHERE listId = (:taskListId) " +
+            "AND startDate = endDate")
+    fun getActiveTasksFromTimeLog(taskListId: String): Flow<List<TimeLogEntity>>
+
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addTimeLog(timeLog: TimeLogEntity)
 }

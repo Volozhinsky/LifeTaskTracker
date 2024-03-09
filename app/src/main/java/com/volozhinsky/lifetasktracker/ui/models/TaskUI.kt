@@ -9,12 +9,12 @@ data class TaskUI(
     var title: String,
     val selfLink: String,
     val parent: String,
-    val position: Int,
+    val position: String,
     var notes: String,
     var status: Boolean,
     var due: LocalDateTime,
     val logDays: Int,
     val logHours: Int,
     val logMinutes: Int,
-    val activeTask: Boolean
+    var activeTask: Boolean
 )

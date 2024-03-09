@@ -17,7 +17,7 @@ data class TaskEntity(
     @ColumnInfo("title") val title: String,
     @ColumnInfo("selfLink") val selfLink: String,
     @ColumnInfo("parent") val parent: String,
-    @ColumnInfo("position") val position: Int,
+    @ColumnInfo("position") val position: String,
     @ColumnInfo("notes") val notes: String,
     @ColumnInfo("status") val status: Boolean,
     @ColumnInfo("due") val due: LocalDateTime,

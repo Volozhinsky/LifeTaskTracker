@@ -1,6 +1,7 @@
 package com.volozhinsky.lifetasktracker.ui.tasks_list
 
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.volozhinsky.lifetasktracker.R
 import com.volozhinsky.lifetasktracker.databinding.RvItemTaskBinding
 import com.volozhinsky.lifetasktracker.ui.models.TaskUI
@@ -22,7 +23,8 @@ class TaskListViewHolder(
         }
         itemBinding.cbWorkOn.isChecked = item.activeTask
         itemBinding.cbWorkOn.setOnClickListener {
-            listners.onStartTiming(item,itemBinding.cbWorkOn.isChecked)
+
+            listners.onStartTiming(item, (it as MaterialCheckBox).isChecked)
         }
         itemBinding.cbCompleted.isChecked = item.status
         itemBinding.cbCompleted.setOnClickListener {

@@ -10,5 +10,6 @@ class TimeLogUseCase @Inject constructor(
 
     suspend fun startLog(task: Task) = taskListRepository.startTimeLog(task)
 
-    suspend fun stopLog() = taskListRepository.stopTimeLog()
+    suspend fun stopLog(task: Task) = taskListRepository.stopTimeLog(task)
 }
+

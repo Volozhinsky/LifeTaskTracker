@@ -23,7 +23,8 @@ class TaskMapper @Inject constructor(@Named("api") private val dateTimeFormatter
             notes = notes,
             status = status,
             due = due,
-            position = position
+            position = position,
+            activeTask = false
         )
     }
 
@@ -73,7 +74,7 @@ class TaskMapper @Inject constructor(@Named("api") private val dateTimeFormatter
             due =due?.let {
                 LocalDateTime.parse(it,dateTimeFormatter)
             }   ?: LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC),
-            position = position?.toInt() ?: 0,
+            position = position ?: "",
             sinc = true
         )
     }

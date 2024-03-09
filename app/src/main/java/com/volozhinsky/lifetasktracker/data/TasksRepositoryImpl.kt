@@ -15,6 +15,8 @@ import com.volozhinsky.lifetasktracker.ui.models.AudioDescriptionUI
 import com.volozhinsky.lifetasktracker.ui.models.PhotoDescriptionUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -33,6 +35,9 @@ class TasksRepositoryImpl @Inject constructor(
     private val userDataSource: UserDataSource,
     private val timeLogMapper: TimeLogMapper
 ) : LifeTasksRepository {
+
+    private val activeTaskIdFlow  = MutableSharedFlow<String>()
+
 
     override suspend fun getTaskLists(user: User): Flow<List<TaskList>> {
         return withContext(Dispatchers.IO) {
@@ -138,23 +143,21 @@ class TasksRepositoryImpl @Inject constructor(
     }
 
     override suspend fun startTimeLog(task: Task) {
-        saveCurrent()
+        saveCurrent(task)
         startNew(task)
     }
 
-    private suspend fun saveCurrent() {
-        val currentTaskId = userDataSource.getCurrentTaskId()
-        val currentStartDate = LocalDateTime.ofInstant(
-            Instant.ofEpochMilli(userDataSource.getCurrentTaskStartDate()),
-            ZoneOffset.UTC
-        )
-        if (currentTaskId.isNotEmpty()) {
-            withContext(Dispatchers.IO) {
+    private suspend fun saveCurrent(task: Task) {
+        withContext(Dispatchers.IO) {
+        val listOfStartDate = tasksDao.getLastStartTimeFromTimeLogs(task.internalId.toString())
+        if (listOfStartDate.isNotEmpty()){
+            val currentTimelog = listOfStartDate[0]
+
                 tasksDao.addTimeLog(
                     TimeLogEntity(
-                        id = UUID.randomUUID().toString(),
-                        internalId = UUID.fromString(currentTaskId),
-                        startDate = currentStartDate,
+                        id = currentTimelog.id,
+                        internalId = currentTimelog.internalId,
+                        startDate = currentTimelog.startDate,
                         endDate = LocalDateTime.now(),
                         listId = queryProperties.taskListId
                     )
@@ -163,14 +166,19 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun startNew(task: Task) {
-        userDataSource.setCurrentTaskID(task.internalId.toString())
-        userDataSource.setCurrentTaskStartDate(
-            LocalDateTime.now()
-                .atZone(ZoneOffset.UTC)
-                .toInstant()
-                .toEpochMilli()
-        )
+    private suspend fun startNew(task: Task) {
+        withContext(Dispatchers.IO) {
+            val now = LocalDateTime.now()
+            tasksDao.addTimeLog(
+                TimeLogEntity(
+                    id = UUID.randomUUID().toString(),
+                    internalId =  task.internalId,
+                    startDate = now,
+                    endDate = now,
+                    listId = queryProperties.taskListId
+                )
+            )
+        }
     }
 
     override suspend fun getTimeLog(): Flow<List<TimeLog>> {
@@ -180,8 +188,14 @@ class TasksRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun stopTimeLog() {
-        saveCurrent()
-        userDataSource.setCurrentTaskID("")
+    override suspend fun stopTimeLog(task: Task) {
+        saveCurrent(task)
+    }
+
+    override suspend fun getActiveTaskIdFlow(): Flow<List<TimeLog>>{
+        val timeLogFlow = tasksDao.getActiveTasksFromTimeLog(queryProperties.taskListId)
+        return timeLogFlow.map { timeLog ->
+            timeLog.map { timeLogMapper.mapEntityToDomain(it) }
+        }
     }
 }

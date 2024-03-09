@@ -19,7 +19,8 @@ class GoogleRequestInterceptor @Inject constructor(
         val url: HttpUrl = request.url().newBuilder().addQueryParameter("key", API_KEY).build()
         val requestBuilder = request.newBuilder().url(url)
         requestBuilder.addHeader("Authorization", "Bearer ${credential.token}")
-        return chain.proceed(requestBuilder.build())
+        val res = chain.proceed(requestBuilder.build())
+        return res
     }
 
     companion object {
